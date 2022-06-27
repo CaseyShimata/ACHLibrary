@@ -1,8 +1,10 @@
-package com.loanpro.achlibrary.validatorstructure.router;
+package com.loanpro.achlibrary.router;
 
+import com.loanpro.achlibrary.model.Record;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import com.loanpro.achlibrary.model.File;
 
 import java.io.*;
 
@@ -11,43 +13,62 @@ public class ValidatorRouter {
 
     //todo: change to post request that accepts a string of ACH data
     @RequestMapping(value = "/ach-data-validate", method = RequestMethod.POST, consumes = {MediaType.TEXT_PLAIN_VALUE})
-    public String achDataIn(@RequestBody String data) {
+    public Object achDataIn(@RequestBody String data) {
         if (!data.isEmpty()) {
             try {
                 return mapACHDATA(new StringReader(data));
             } catch (IOException e) {
                 e.printStackTrace();
+                return e;
             }
         }
-        return "";
+        return "File is empty";
     }
 
     @RequestMapping(path = "/ach-file-validate", method = RequestMethod.POST, consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
-    public String achFileIn(@RequestPart MultipartFile file) throws Exception {
+    public Object achFileIn(@RequestPart MultipartFile file) throws Exception {
         if (!file.isEmpty()) {
             try {
                return mapACHDATA(new BufferedReader(new InputStreamReader(file.getInputStream(), "UTF-8")));
             } catch (IOException e) {
                 e.printStackTrace();
+                return e;
             }
         }
-        return "";
+        return "File is empty";
     }
 
-    private String mapACHDATA(Reader chars) throws IOException {
-        String outPut = "";
+    private File mapACHDATA(Reader chars) throws IOException {
         int r;
-        int charCount = 0;
-        int lineCount = 0;
+        int charCountOnLine = 1;
+        int lineCount = 1;
+        String rawRecord = "";
+        File file = new File();
         while ((r = chars.read()) != -1) {
-            charCount += 1;
             char ch = (char) r;
-            outPut+=ch;
-            //track char count
-            //track line count
-            //if char is 1st on line then decide what structure to map the next 94 chars to
+            if (charCountOnLine == 1) {
+               if (lineCount != 1){
+                   file.getRecordAtIndex(lineCount - 2).setNextRecordType(ch);
+               }
+               file.appendToRecords(new Record(ch,lineCount));
+            }
+            file.getRecordAtIndex(lineCount - 1).appendToRawRecord(ch);
+
+            rawRecord+=ch;
+            if (ch == '\n'){
+
+                charCountOnLine = 1;
+                lineCount+=1;
+                continue;
+            }
+            charCountOnLine += 1;
+
             //if char is /n then save the record index, type code, and length to the record objects properties
-            //
+
+
+
+
+
             //store these validation
             //later when doing validation we will check that the current record matches a pattern property. We will return the line number that is out of order, its type code, and what type code should be there.
             //later when doing validation we iterate the array of records checking each one's length & returning its line number, and record type to the errors array if it fails.
@@ -60,7 +81,8 @@ public class ValidatorRouter {
             //fourth validation check that all required records are present
             //(determine decently efficient way to reduce time complexity while iterating to check).
         }
-        return outPut;
+        file.setRawFile(rawRecord);
+        return file;
 
     }
 }

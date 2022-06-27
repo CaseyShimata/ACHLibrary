@@ -1,0 +1,5 @@
+branch-defaults:
+  feature/LOANPRO-6/create-ach-mapping-structure:
+    environment: Achlibrary-env
+global:
+  profile: eb-cli

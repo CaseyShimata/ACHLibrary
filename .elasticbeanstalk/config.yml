@@ -1,0 +1,19 @@
+branch-defaults:
+  feature/LOANPRO-6/create-ach-mapping-structure:
+    environment: Achlibrary-env
+environment-defaults:
+  Achlibrary-env:
+    branch: null
+    repository: null
+global:
+  application_name: ACHLibrary
+  default_ec2_keyname: null
+  default_platform: Corretto 11 running on 64bit Amazon Linux 2
+  default_region: us-east-1
+  include_git_submodules: true
+  instance_profile: null
+  platform_name: null
+  platform_version: null
+  profile: eb-cli
+  sc: git
+  workspace_type: Application

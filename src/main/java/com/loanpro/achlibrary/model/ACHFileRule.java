@@ -1,8 +1,26 @@
 package com.loanpro.achlibrary.model;
 
-public class FileRules {
+public class ACHFileRule {
 
-    public String isRecordCountModuloTen;
+    final private String name;
+    private String isRecordCountModuloTen;
+
+    public ACHFileRule(String name) {
+        this.name = name;
+        this.isRecordCountModuloTen = isRecordCountModuloTen;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public String getIsRecordCountModuloTen() {
+        return isRecordCountModuloTen;
+    }
+
+    public void setIsRecordCountModuloTen(String isRecordCountModuloTen) {
+        this.isRecordCountModuloTen = isRecordCountModuloTen;
+    }
 
     /**
      * Returns An array of allowed next record types for a given record type.

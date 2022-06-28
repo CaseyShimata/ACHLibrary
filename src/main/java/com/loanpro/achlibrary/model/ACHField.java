@@ -1,18 +1,16 @@
 package com.loanpro.achlibrary.model;
 
-import java.util.List;
-
-public class Field {
+public class ACHField {
 
 
     private int[] currentValue;
     private int[] currentPosition;
-    private Record record;
+    private ACHRecord achRecord;
 
-    public Field(int[] currentValue, int[] currentPosition, Record record) {
+    public ACHField(int[] currentValue, int[] currentPosition, ACHRecord achRecord) {
         this.currentValue = currentValue;
         this.currentPosition = currentPosition;
-        this.record = record;
+        this.achRecord = achRecord;
     }
 
     public int[] getCurrentValue() {
@@ -31,11 +29,11 @@ public class Field {
         this.currentPosition = currentPosition;
     }
 
-    public Record getRecord() {
-        return record;
+    public ACHRecord getRecord() {
+        return achRecord;
     }
 
-    public void setRecord(Record record) {
-        this.record = record;
+    public void setRecord(ACHRecord achRecord) {
+        this.achRecord = achRecord;
     }
 }

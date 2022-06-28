@@ -1,6 +1,6 @@
 package com.loanpro.achlibrary.model;
 
-public class RecordRules {
+public class ACHRecordRule {
     public Boolean required;
     public String paddingPosition;
     public String paddingChar;

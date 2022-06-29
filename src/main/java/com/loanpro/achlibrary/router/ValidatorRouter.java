@@ -1,10 +1,10 @@
 package com.loanpro.achlibrary.router;
 
-import com.loanpro.achlibrary.model.Record;
+import com.loanpro.achlibrary.model.ACHRecord;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import com.loanpro.achlibrary.model.File;
+import com.loanpro.achlibrary.model.ACHFile;
 
 import java.io.*;
 
@@ -38,30 +38,36 @@ public class ValidatorRouter {
         return "File is empty";
     }
 
-    private File mapACHDATA(Reader chars) throws IOException {
+    private ACHFile mapACHDATA(Reader chars) throws IOException {
         int r;
-        int charCountOnLine = 1;
-        int lineCount = 1;
+        int charCountInRecord = 1;
+        int recordCount = 1;
         String rawRecord = "";
-        File file = new File();
+        ACHFile achFile = new ACHFile();
         while ((r = chars.read()) != -1) {
             char ch = (char) r;
-            if (charCountOnLine == 1) {
-               if (lineCount != 1){
-                   file.getRecordAtIndex(lineCount - 2).setNextRecordType(ch);
+            //if it is the first letter of the record
+            if (charCountInRecord == 1) {
+               //create a new record
+                achFile.appendToRecords(new ACHRecord(ch,recordCount));
+                //if it is not the first record of the page
+                if (recordCount != 1){
+                    //set the previous records next record type (so we can more efficiently check if a records next record type is valid.
+                   achFile.getRecordAtIndex(recordCount - 2).setNextRecordType(ch);
                }
-               file.appendToRecords(new Record(ch,lineCount));
             }
-            file.getRecordAtIndex(lineCount - 1).appendToRawRecord(ch);
-
-            rawRecord+=ch;
+            //if it is the last character of the record
             if (ch == '\n'){
-
-                charCountOnLine = 1;
-                lineCount+=1;
+                //Map all the fields now that the record has all of its characters
+                achFile.getRecordAtIndex(recordCount - 1).setACHFields();
+                charCountInRecord = 1;
+                recordCount+=1;
+                //do not append to the record but continue on to make the next record
                 continue;
             }
-            charCountOnLine += 1;
+            rawRecord+=ch;
+            achFile.getRecordAtIndex(recordCount - 1).appendToRawRecord(ch);
+            charCountInRecord += 1;
 
             //if char is /n then save the record index, type code, and length to the record objects properties
 
@@ -81,8 +87,8 @@ public class ValidatorRouter {
             //fourth validation check that all required records are present
             //(determine decently efficient way to reduce time complexity while iterating to check).
         }
-        file.setRawFile(rawRecord);
-        return file;
+        achFile.setRawFile(rawRecord);
+        return achFile;
 
     }
 }

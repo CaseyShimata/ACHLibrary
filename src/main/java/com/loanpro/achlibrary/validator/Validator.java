@@ -1,4 +1,5 @@
-package com.loanpro.achlibrary.validatorstructure.validator;
+package com.loanpro.achlibrary.validator;
 
 public class Validator {
+
 }

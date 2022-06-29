@@ -1,54 +1,61 @@
 package com.loanpro.achlibrary.model;
 
 public final class ACHFieldRule {
+    final private int achFileNumber;
     final private int recordNumber;
     final private int fieldNumber;
-    final private String fieldName;
-    final private String fieldRuleDescription;
-    final private String paddingPosition;
-    final private String paddingChar;
-    final private Integer paddingLength;
-    final private String dataTypeIs;
     final private Integer objectsCharacterLengthIs;
-    final private int[] objectTakesUpPositionInRecord;
-    final private String followsASiblingRecordFieldSequencingRule;
-    final private Integer isNumberOfRecordsDividedByTen;
-    final private Integer isTheObjectsImmediateChildCount;
-    final private Integer isSumOfCountOfTwoChildren;
-    final private Integer isValueOfOtherField;
-    final private Integer isValueOfOtherFieldInOtherRecord;
-    final private Integer isSumOfAllSiblingOfOtherField;
-    final private Integer is0dependentOnValueOfOtherField;
-    final private Integer isTheCurrentObjectsIndexPlusOne;
-    final private Integer isTheEndingNumberOfOtherField;
-    final private int[] isOneOfASetOfValues;
+    final private Integer objectTakesUpPositionInRecord;
+    private String fieldName;
+    private String fieldRuleDescription;
+    private String paddingPosition;
+    private String paddingChar;
+    private Integer paddingLength;
+    private String dataTypeIs;
+    private String followsASiblingRecordFieldSequencingRule;
+    private Integer isNumberOfRecordsDividedByTen;
+    private Integer isTheObjectsImmediateChildCount;
+    private Integer isSumOfCountOfTwoChildren;
+    private Integer isValueOfOtherField;
+    private Integer isValueOfOtherFieldInOtherRecord;
+    private Integer isSumOfAllSiblingOfOtherField;
+    private Integer is0dependentOnValueOfOtherField;
+    private Integer isTheCurrentObjectsIndexPlusOne;
+    private Integer isTheEndingNumberOfOtherField;
+    private int[] isOneOfASetOfValues;
 
-    private ACHFieldRule(int recordNumber, int fieldNumber, String fieldName, String fieldRuleDescription, String paddingPosition, String paddingChar, Integer paddingLength, String dataTypeIs, Integer objectsCharacterLengthIs, int[] objectTakesUpPositionInRecord, String followsASiblingRecordFieldSequencingRule, Integer isNumberOfRecordsDividedByTen, Integer isTheObjectsImmediateChildCount, Integer isSumOfCountOfTwoChildren, Integer isValueOfOtherField, Integer isValueOfOtherFieldInOtherRecord, Integer isSumOfAllSiblingOfOtherField, Integer is0dependentOnValueOfOtherField, Integer isTheCurrentObjectsIndexPlusOne, Integer isTheEndingNumberOfOtherField, int[] isOneOfASetOfValues) {
+
+    private ACHFieldRule(int achFileNumber, int recordNumber, int fieldNumber, Integer objectsCharacterLengthIs, Integer objectTakesUpPositionInRecord) {
+        this.achFileNumber = achFileNumber;
         this.recordNumber = recordNumber;
         this.fieldNumber = fieldNumber;
-        this.fieldName = fieldName;
-        this.fieldRuleDescription = fieldRuleDescription;
-        this.paddingPosition = paddingPosition;
-        this.paddingChar = paddingChar;
-        this.paddingLength = paddingLength;
-        this.dataTypeIs = dataTypeIs;
         this.objectsCharacterLengthIs = objectsCharacterLengthIs;
         this.objectTakesUpPositionInRecord = objectTakesUpPositionInRecord;
-        this.followsASiblingRecordFieldSequencingRule = followsASiblingRecordFieldSequencingRule;
-        this.isNumberOfRecordsDividedByTen = isNumberOfRecordsDividedByTen;
-        this.isTheObjectsImmediateChildCount = isTheObjectsImmediateChildCount;
-        this.isSumOfCountOfTwoChildren = isSumOfCountOfTwoChildren;
-        this.isValueOfOtherField = isValueOfOtherField;
-        this.isValueOfOtherFieldInOtherRecord = isValueOfOtherFieldInOtherRecord;
-        this.isSumOfAllSiblingOfOtherField = isSumOfAllSiblingOfOtherField;
-        this.is0dependentOnValueOfOtherField = is0dependentOnValueOfOtherField;
-        this.isTheCurrentObjectsIndexPlusOne = isTheCurrentObjectsIndexPlusOne;
-        this.isTheEndingNumberOfOtherField = isTheEndingNumberOfOtherField;
-        this.isOneOfASetOfValues = isOneOfASetOfValues;
     }
 
-    public static ACHFieldRule createNewInstance(int recordNumber, int fieldNumber, String fieldName, String fieldRuleDescription, String paddingPosition, String paddingChar, Integer paddingLength, String dataTypeIs, Integer objectsCharacterLengthIs, int[] objectTakesUpPositionInRecord, String followsASiblingRecordFieldSequencingRule, Integer isNumberOfRecordsDividedByTen, Integer isTheObjectsImmediateChildCount, Integer isSumOfCountOfTwoChildren, Integer isValueOfOtherField, Integer isValueOfOtherFieldInOtherRecord, Integer isSumOfAllSiblingOfOtherField, Integer is0dependentOnValueOfOtherField, Integer isTheCurrentObjectsIndexPlusOne, Integer isTheEndingNumberOfOtherField, int[] isOneOfASetOfValues) {
-        return new ACHFieldRule(recordNumber, fieldNumber, fieldName, fieldRuleDescription, paddingPosition, paddingChar, paddingLength, dataTypeIs, objectsCharacterLengthIs, objectTakesUpPositionInRecord, followsASiblingRecordFieldSequencingRule, isNumberOfRecordsDividedByTen, isTheObjectsImmediateChildCount, isSumOfCountOfTwoChildren, isValueOfOtherField, isValueOfOtherFieldInOtherRecord, isSumOfAllSiblingOfOtherField, is0dependentOnValueOfOtherField, isTheCurrentObjectsIndexPlusOne, isTheEndingNumberOfOtherField,isOneOfASetOfValues);
+    public static ACHFieldRule createNewInstance(int achFileNumber, int recordNumber, int fieldNumber, Integer objectsCharacterLengthIs, Integer objectTakesUpPositionInRecord) {
+        return new ACHFieldRule(achFileNumber, recordNumber, fieldNumber,objectsCharacterLengthIs , objectTakesUpPositionInRecord);
+    }
+
+
+    public int getAchFileNumber() {
+        return achFileNumber;
+    }
+
+    public int getRecordNumber() {
+        return recordNumber;
+    }
+
+    public int getFieldNumber() {
+        return fieldNumber;
+    }
+
+    public Integer getObjectsCharacterLengthIs() {
+        return objectsCharacterLengthIs;
+    }
+
+    public Integer getObjectTakesUpPositionInRecord() {
+        return objectTakesUpPositionInRecord;
     }
 
     public String getFieldName() {
@@ -73,14 +80,6 @@ public final class ACHFieldRule {
 
     public String getDataTypeIs() {
         return dataTypeIs;
-    }
-
-    public Integer getObjectsCharacterLengthIs() {
-        return objectsCharacterLengthIs;
-    }
-
-    public int[] getObjectTakesUpPositionInRecord() {
-        return objectTakesUpPositionInRecord;
     }
 
     public String getFollowsASiblingRecordFieldSequencingRule() {

@@ -1,39 +1,31 @@
 package com.loanpro.achlibrary.model;
 
+import java.util.ArrayList;
+
 public class ACHField {
 
 
-    private int[] currentValue;
-    private int[] currentPosition;
-    private ACHRecord achRecord;
+    private ArrayList<Character> currentValue;
+    private Integer currentPosition;
 
-    public ACHField(int[] currentValue, int[] currentPosition, ACHRecord achRecord) {
+    public ACHField(ArrayList<Character> currentValue, Integer currentPosition) {
         this.currentValue = currentValue;
         this.currentPosition = currentPosition;
-        this.achRecord = achRecord;
     }
 
-    public int[] getCurrentValue() {
+    public ArrayList<Character> getCurrentValue() {
         return currentValue;
     }
 
-    public void setCurrentValue(int[] currentValue) {
+    public void setCurrentValue(ArrayList<Character> currentValue) {
         this.currentValue = currentValue;
     }
 
-    public int[] getCurrentPosition() {
+    public Integer getCurrentPosition() {
         return currentPosition;
     }
 
-    public void setCurrentPosition(int[] currentPosition) {
+    public void setCurrentPosition(Integer currentPosition) {
         this.currentPosition = currentPosition;
-    }
-
-    public ACHRecord getRecord() {
-        return achRecord;
-    }
-
-    public void setRecord(ACHRecord achRecord) {
-        this.achRecord = achRecord;
     }
 }

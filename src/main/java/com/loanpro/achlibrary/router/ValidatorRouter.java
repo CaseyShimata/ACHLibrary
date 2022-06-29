@@ -58,6 +58,8 @@ public class ValidatorRouter {
             }
             //if it is the last character of the record
             if (ch == '\n'){
+                //Map all the fields now that the record has all of its characters
+                achFile.getRecordAtIndex(recordCount - 1).setACHFields();
                 charCountInRecord = 1;
                 recordCount+=1;
                 //do not append to the record but continue on to make the next record

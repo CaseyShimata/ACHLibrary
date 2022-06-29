@@ -1,6 +1,8 @@
 package com.loanpro.achlibrary.model;
 
-import java.util.ArrayList;
+import com.loanpro.achlibrary.dictionary.ACHRuleDictionary;
+
+import java.util.*;
 
 public class ACHRecord {
     private Character recordTypeNumber;
@@ -15,22 +17,44 @@ public class ACHRecord {
         this.lineNumber = lineNumber;
     }
 
-    public void rawRecordToFields(Character recordTypeNumber, ArrayList<Character> rawRecord){
-         switch (recordTypeNumber){
-             case 1:
-                 break;
-             case 5:
-                 break;
-             case 6:
-                 break;
-             case 7:
-                 break;
-             case 8:
-                 break;
-             case 9:
-             default:
-                 break;
-         }
+    /**
+     * Map rawRecord to its respective fields once raw record is fully populated.
+     *
+     *
+     */
+    public void setACHFields(){
+        HashMap<Integer, HashMap<Integer, ACHFieldRule>> achFieldRules = ACHRuleDictionary.getAchFieldRules();
+
+        //make a new array by splitting the raw record from the fields start to the fields end
+
+        //todo: get number of fields that are in this recordType
+        int numberOfRecordFields = achFieldRules.get(Character.getNumericValue(this.getRecordTypeNumber())).size();
+        
+        ArrayList<ACHField> achFieldsTemp = new ArrayList<ACHField>(Collections.nCopies(numberOfRecordFields, null));
+
+        for (Map.Entry<Integer, ACHFieldRule> index :
+                achFieldRules.get(Character.getNumericValue(this.getRecordTypeNumber())).entrySet()) {
+
+            ACHFieldRule achFieldRule = index.getValue();
+            Integer achCharacterPosition1 = achFieldRule.getObjectTakesUpPositionInRecord() - 1;
+            Integer achCharacterPosition2 = achCharacterPosition1 + achFieldRule.getObjectsCharacterLengthIs();
+
+
+//            todo: Use this function to map the fields into strings to put into text fields for editing of the ACH file.
+//            String str = this.getRawRecord().stream()
+//                    .map(e->e.toString())
+//                    .collect(Collectors.joining());
+
+            //todo: Evaluate why only getting 93 char length in non error ACH
+            ArrayList<Character> newACHFieldCurrentValue = new ArrayList<Character>(this.getRawRecord()
+                    .subList(achCharacterPosition1, achCharacterPosition2));
+
+            ACHField achField = new ACHField(newACHFieldCurrentValue, achFieldRule.getObjectTakesUpPositionInRecord());
+
+            //Insert the field into an array at the index it belongs in the raw data.
+            achFieldsTemp.add(index.getValue().getFieldNumber(),achField);
+        }
+        this.achFields = achFieldsTemp;
     }
 
     public Character getRecordTypeNumber() {
@@ -87,5 +111,16 @@ public class ACHRecord {
 
     public void appendToACHFields(ACHField achField){
         this.achFields.add(achField);
+    }
+
+    /**
+     * inserts achField at a given index and shifts the fields indexes.
+     *
+     * @param achField
+     * @param index
+     */
+    public void insertToACHFields(ACHField achField, int index){
+        this.achFields.add(index, achField);
+
     }
 }

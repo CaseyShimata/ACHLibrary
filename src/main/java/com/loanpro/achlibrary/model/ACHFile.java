@@ -33,4 +33,15 @@ public class ACHFile {
     public void appendToRecords(ACHRecord achRecord){
         this.achRecords.add(achRecord);
     }
+
+    /**
+     * inserts achRecord at a given index and shifts records indexes.
+     *
+     * @param achRecord
+     * @param index
+     */
+    public void insertToACHFields(ACHRecord achRecord, int index){
+        this.achRecords.add(index, achRecord);
+
+    }
 }

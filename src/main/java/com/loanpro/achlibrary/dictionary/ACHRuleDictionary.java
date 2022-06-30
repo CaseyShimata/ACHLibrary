@@ -37,7 +37,7 @@ public class ACHRuleDictionary {
             int i = 0;
             while (i < fieldNumber) {
 
-                HashMap<String, Integer> fieldProperties = mapFieldRules(recordNumber, fieldNumber);
+                HashMap<String, Integer> fieldProperties = mapFieldRules(recordNumber, i+1);
 
                 achFieldRules.get(recordNumber).put(i+1, ACHFieldRule.createNewInstance(0000, recordNumber, i+1, fieldProperties.get("objectsCharacterLengthIs"), fieldProperties.get("objectTakesUpPositionInRecord")));
                 i += 1;

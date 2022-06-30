@@ -28,9 +28,9 @@ public class ACHRecord {
         //make a new array by splitting the raw record from the fields start to the fields end
 
         //todo: get number of fields that are in this recordType
-        int numberOfRecordFields = achFieldRules.get(Character.getNumericValue(this.getRecordTypeNumber())).size();
+        int numberOfRecordsFields = achFieldRules.get(Character.getNumericValue(this.getRecordTypeNumber())).size();
         
-        ArrayList<ACHField> achFieldsTemp = new ArrayList<ACHField>(Collections.nCopies(numberOfRecordFields, null));
+        ArrayList<ACHField> achFieldsTemp = new ArrayList<ACHField>(Collections.nCopies(numberOfRecordsFields, null));
 
         for (Map.Entry<Integer, ACHFieldRule> index :
                 achFieldRules.get(Character.getNumericValue(this.getRecordTypeNumber())).entrySet()) {
@@ -45,9 +45,10 @@ public class ACHRecord {
 //                    .map(e->e.toString())
 //                    .collect(Collectors.joining());
 
-            //todo: Evaluate why only getting 93 char length in non error ACH
-            ArrayList<Character> newACHFieldCurrentValue = new ArrayList<Character>(this.getRawRecord()
-                    .subList(achCharacterPosition1, achCharacterPosition2));
+            ArrayList<Character> newACHFieldCurrentValue = new ArrayList<Character>(achCharacterPosition2 - achCharacterPosition1);
+            newACHFieldCurrentValue = new ArrayList<Character>(this.getRawRecord()
+                    .subList(achCharacterPosition1.intValue(), achCharacterPosition2.intValue()));
+
 
             ACHField achField = new ACHField(newACHFieldCurrentValue, achFieldRule.getObjectTakesUpPositionInRecord());
 

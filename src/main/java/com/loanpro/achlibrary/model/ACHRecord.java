@@ -1,25 +1,89 @@
 package com.loanpro.achlibrary.model;
 
 import com.loanpro.achlibrary.dictionary.ACHRuleDictionary;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
 public class ACHRecord {
-    private Character recordTypeNumber;
-    private Character nextRecordType;
-    private String recordType;
-    private int lineNumber;
-    private ArrayList<Character> rawRecord = new ArrayList<Character>();
+    private int achPageNumber;
+    private int achRecordNumber;
+    private Character achRecordTypeNumber;
+    private Character nextRecordTypeNumber;
+    private ArrayList<Character> achRawRecord = new ArrayList<Character>();
     private ArrayList<ACHField> achFields = new ArrayList<ACHField>();
+    private ACHRecordRule achRecordRule;
+    private ArrayList<ACHValidationTest> achValidationTests;
+    Logger logger = LoggerFactory.getLogger(ACHRecord.class);
 
-    public ACHRecord(Character recordTypeNumber, int lineNumber) {
-        this.recordTypeNumber = recordTypeNumber;
-        this.lineNumber = lineNumber;
+    //todo: step through and determine where the page number and use this constructor instead
+    public ACHRecord(int achPageNumber, int achRecordNumber, Character achRecordTypeNumber) {
+        this.achPageNumber = achPageNumber;
+        this.achRecordNumber = achRecordNumber;
+        this.achRecordTypeNumber = achRecordTypeNumber;
+    }
+
+    public ACHRecord(Character achRecordTypeNumber, int achRecordNumber) {
+        this.achRecordTypeNumber = achRecordTypeNumber;
+        this.achRecordNumber = achRecordNumber;
+    }
+
+    public int getAchPageNumber() {
+        return achPageNumber;
+    }
+
+    public void setAchPageNumber(int achPageNumber) {
+        this.achPageNumber = achPageNumber;
+    }
+
+    public int getAchRecordNumber() {
+        return achRecordNumber;
+    }
+
+    public void setAchRecordNumber(int achRecordNumber) {
+        this.achRecordNumber = achRecordNumber;
+    }
+
+    public Character getAchRecordTypeNumber() {
+        return achRecordTypeNumber;
+    }
+
+    public void setAchRecordTypeNumber(Character achRecordTypeNumber) {
+        this.achRecordTypeNumber = achRecordTypeNumber;
+    }
+
+    public Character getNextRecordTypeNumber() {
+        return nextRecordTypeNumber;
+    }
+
+    public void setNextRecordTypeNumber(Character nextRecordTypeNumber) {
+        this.nextRecordTypeNumber = nextRecordTypeNumber;
+    }
+
+    public ArrayList<Character> getAchRawRecord() {
+        return achRawRecord;
+    }
+
+    public void setAchRawRecord(ArrayList<Character> achRawRecord) {
+        this.achRawRecord = achRawRecord;
+    }
+
+    public void appendToACHRawRecord(char ch) {
+        this.achRawRecord.add(ch);
+    }
+
+
+    public ArrayList<ACHField> getAchFields() {
+        return achFields;
+    }
+
+    public void setAchFields(ArrayList<ACHField> achFields) {
+        this.achFields = achFields;
     }
 
     /**
      * Map rawRecord to its respective fields once raw record is fully populated.
-     *
      *
      */
     public void setACHFields(){
@@ -28,100 +92,63 @@ public class ACHRecord {
         //make a new array by splitting the raw record from the fields start to the fields end
 
         //todo: get number of fields that are in this recordType
-        int numberOfRecordsFields = achFieldRules.get(Character.getNumericValue(this.getRecordTypeNumber())).size();
-        
+        int numberOfRecordsFields = achFieldRules.get(Character.getNumericValue(this.getAchRecordTypeNumber())).size();
+
         ArrayList<ACHField> achFieldsTemp = new ArrayList<ACHField>(Collections.nCopies(numberOfRecordsFields, null));
 
         for (Map.Entry<Integer, ACHFieldRule> index :
-                achFieldRules.get(Character.getNumericValue(this.getRecordTypeNumber())).entrySet()) {
+                achFieldRules.get(Character.getNumericValue(this.getAchRecordTypeNumber())).entrySet()) {
 
             ACHFieldRule achFieldRule = index.getValue();
             Integer achCharacterPosition1 = achFieldRule.getObjectTakesUpPositionInRecord() - 1;
             Integer achCharacterPosition2 = achCharacterPosition1 + achFieldRule.getObjectsCharacterLengthIs();
 
 
-//            todo: Use this function to map the fields into strings to put into text fields for editing of the ACH file.
+//            todo: Use this function to map the fields into strings to put into text fields for editing of the ACH page.
 //            String str = this.getRawRecord().stream()
 //                    .map(e->e.toString())
 //                    .collect(Collectors.joining());
 
-            ArrayList<Character> newACHFieldCurrentValue = new ArrayList<Character>(achCharacterPosition2 - achCharacterPosition1);
-            newACHFieldCurrentValue = new ArrayList<Character>(this.getRawRecord()
-                    .subList(achCharacterPosition1.intValue(), achCharacterPosition2.intValue()));
+            //Check if a rawRecord is too short. If it is too long it will have null values in the achField class.
+            try {
+                ArrayList<Character> newACHFieldCurrentValue = new ArrayList<Character>(this.getAchRawRecord()
+                        .subList(achCharacterPosition1, achCharacterPosition2));
 
+                ACHField achFieldTemp = new ACHField(newACHFieldCurrentValue, achFieldRule.getObjectTakesUpPositionInRecord());
 
-            ACHField achField = new ACHField(newACHFieldCurrentValue, achFieldRule.getObjectTakesUpPositionInRecord());
-
-            //Insert the field into an array at the index it belongs in the raw data.
-            achFieldsTemp.add(index.getValue().getFieldNumber(),achField);
+                //Insert the field into an array at the index it belongs in the raw data.
+                achFieldsTemp.add(index.getValue().getAchFieldNumber(),achFieldTemp);
+            } catch (IndexOutOfBoundsException e){
+                //todo: add to the validationError object for this record.
+                logger.info("add to the validationError object for this record." );
+                continue;
+            }
         }
         this.achFields = achFieldsTemp;
-    }
-
-    public Character getRecordTypeNumber() {
-        return recordTypeNumber;
-    }
-
-    public void setRecordTypeNumber(Character recordTypeNumber) {
-        this.recordTypeNumber = recordTypeNumber;
-    }
-
-    public Character getNextRecordType() {
-        return nextRecordType;
-    }
-
-    public void setNextRecordType(Character nextRecordType) {
-        this.nextRecordType = nextRecordType;
-    }
-
-    public String getRecordType() {
-        return recordType;
-    }
-
-    public void setRecordType(String recordType) {
-        this.recordType = recordType;
-    }
-
-    public int getLineNumber() {
-        return lineNumber;
-    }
-
-    public void setLineNumber(int lineNumber) {
-        this.lineNumber = lineNumber;
-    }
-
-    public ArrayList<Character> getRawRecord() {
-        return rawRecord;
-    }
-
-    public void setRawRecord(ArrayList<Character> rawRecord) {
-        this.rawRecord = rawRecord;
-    }
-
-    public void appendToRawRecord(char ch) {
-        this.rawRecord.add(ch);
-    }
-
-    public ArrayList<ACHField> getFields() {
-        return achFields;
-    }
-
-    public void setACHFields(ArrayList<ACHField> achFields) {
-        this.achFields = achFields;
     }
 
     public void appendToACHFields(ACHField achField){
         this.achFields.add(achField);
     }
 
-    /**
-     * inserts achField at a given index and shifts the fields indexes.
-     *
-     * @param achField
-     * @param index
-     */
     public void insertToACHFields(ACHField achField, int index){
         this.achFields.add(index, achField);
 
+    }
+
+    public ACHRecordRule getAchRecordRule() {
+        return achRecordRule;
+    }
+
+    public void setAchRecordRule(ACHRecordRule achRecordRule) {
+        this.achRecordRule = achRecordRule;
+    }
+
+    public ArrayList<ACHValidationTest> getAchValidationTests() {
+        return achValidationTests;
+    }
+
+    public void setAchValidationTests(ArrayList<ACHValidationTest> achValidationTests) {
+        this.achValidationTests = achValidationTests;
     }
 }

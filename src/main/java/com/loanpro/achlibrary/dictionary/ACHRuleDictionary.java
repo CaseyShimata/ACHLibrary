@@ -39,7 +39,7 @@ public class ACHRuleDictionary {
 
                 HashMap<String, Integer> fieldProperties = mapFieldRules(recordNumber, i+1);
 
-                achFieldRules.get(recordNumber).put(i+1, ACHFieldRule.createNewInstance(0000, recordNumber, i+1, fieldProperties.get("objectsCharacterLengthIs"), fieldProperties.get("objectTakesUpPositionInRecord")));
+                achFieldRules.get(recordNumber).put(i+1, ACHFieldRule.createNewInstance(recordNumber, i+1, fieldProperties.get("objectsCharacterLengthIs"), fieldProperties.get("objectTakesUpPositionInRecord")));
                 i += 1;
             }
         }

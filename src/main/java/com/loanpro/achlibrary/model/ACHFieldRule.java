@@ -1,13 +1,15 @@
 package com.loanpro.achlibrary.model;
 
 public final class ACHFieldRule {
-    final private int achFileNumber;
-    final private int recordNumber;
-    final private int fieldNumber;
+    final private int achRecordNumber;
+    final private int achFieldNumber;
+    private String achFieldName;
+    private String achFieldRuleDescription;
     final private Integer objectsCharacterLengthIs;
     final private Integer objectTakesUpPositionInRecord;
-    private String fieldName;
-    private String fieldRuleDescription;
+
+
+
     private String paddingPosition;
     private String paddingChar;
     private Integer paddingLength;
@@ -25,29 +27,31 @@ public final class ACHFieldRule {
     private int[] isOneOfASetOfValues;
 
 
-    private ACHFieldRule(int achFileNumber, int recordNumber, int fieldNumber, Integer objectsCharacterLengthIs, Integer objectTakesUpPositionInRecord) {
-        this.achFileNumber = achFileNumber;
-        this.recordNumber = recordNumber;
-        this.fieldNumber = fieldNumber;
+    private ACHFieldRule(int achRecordNumber, int achFieldNumber, Integer objectsCharacterLengthIs, Integer objectTakesUpPositionInRecord) {
+        this.achRecordNumber = achRecordNumber;
+        this.achFieldNumber = achFieldNumber;
         this.objectsCharacterLengthIs = objectsCharacterLengthIs;
         this.objectTakesUpPositionInRecord = objectTakesUpPositionInRecord;
     }
 
-    public static ACHFieldRule createNewInstance(int achFileNumber, int recordNumber, int fieldNumber, Integer objectsCharacterLengthIs, Integer objectTakesUpPositionInRecord) {
-        return new ACHFieldRule(achFileNumber, recordNumber, fieldNumber,objectsCharacterLengthIs , objectTakesUpPositionInRecord);
+    public static ACHFieldRule createNewInstance(int recordNumber, int fieldNumber, Integer objectsCharacterLengthIs, Integer objectTakesUpPositionInRecord) {
+        return new ACHFieldRule(recordNumber, fieldNumber,objectsCharacterLengthIs , objectTakesUpPositionInRecord);
     }
 
-
-    public int getAchFileNumber() {
-        return achFileNumber;
+    public int getAchRecordNumber() {
+        return achRecordNumber;
     }
 
-    public int getRecordNumber() {
-        return recordNumber;
+    public int getAchFieldNumber() {
+        return achFieldNumber;
     }
 
-    public int getFieldNumber() {
-        return fieldNumber;
+    public String getAchFieldName() {
+        return achFieldName;
+    }
+
+    public String getAchFieldRuleDescription() {
+        return achFieldRuleDescription;
     }
 
     public Integer getObjectsCharacterLengthIs() {
@@ -56,73 +60,5 @@ public final class ACHFieldRule {
 
     public Integer getObjectTakesUpPositionInRecord() {
         return objectTakesUpPositionInRecord;
-    }
-
-    public String getFieldName() {
-        return fieldName;
-    }
-
-    public String getFieldRuleDescription() {
-        return fieldRuleDescription;
-    }
-
-    public String getPaddingPosition() {
-        return paddingPosition;
-    }
-
-    public String getPaddingChar() {
-        return paddingChar;
-    }
-
-    public Integer getPaddingLength() {
-        return paddingLength;
-    }
-
-    public String getDataTypeIs() {
-        return dataTypeIs;
-    }
-
-    public String getFollowsASiblingRecordFieldSequencingRule() {
-        return followsASiblingRecordFieldSequencingRule;
-    }
-
-    public Integer getIsNumberOfRecordsDividedByTen() {
-        return isNumberOfRecordsDividedByTen;
-    }
-
-    public Integer getIsTheObjectsImmediateChildCount() {
-        return isTheObjectsImmediateChildCount;
-    }
-
-    public Integer getIsSumOfCountOfTwoChildren() {
-        return isSumOfCountOfTwoChildren;
-    }
-
-    public Integer getIsValueOfOtherField() {
-        return isValueOfOtherField;
-    }
-
-    public Integer getIsValueOfOtherFieldInOtherRecord() {
-        return isValueOfOtherFieldInOtherRecord;
-    }
-
-    public Integer getIsSumOfAllSiblingOfOtherField() {
-        return isSumOfAllSiblingOfOtherField;
-    }
-
-    public Integer getIs0dependentOnValueOfOtherField() {
-        return is0dependentOnValueOfOtherField;
-    }
-
-    public Integer getIsTheCurrentObjectsIndexPlusOne() {
-        return isTheCurrentObjectsIndexPlusOne;
-    }
-
-    public Integer getIsTheEndingNumberOfOtherField() {
-        return isTheEndingNumberOfOtherField;
-    }
-
-    public int[] getIsOneOfASetOfValues() {
-        return isOneOfASetOfValues;
     }
 }

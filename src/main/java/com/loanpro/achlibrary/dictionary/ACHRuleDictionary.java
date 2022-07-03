@@ -1,347 +1,512 @@
 package com.loanpro.achlibrary.dictionary;
 
-import com.loanpro.achlibrary.model.ACHFieldRule;
+import com.loanpro.achlibrary.model.*;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Consumer;
+
+import static com.loanpro.achlibrary.dictionary.ACHValidationTestSuite.isExpectedRecordLength;
 
 public class ACHRuleDictionary {
 
-    //exa use achFieldRules.get(1).get(2)
-    private static final HashMap<Integer, HashMap<Integer, ACHFieldRule>> achFieldRules = buildFieldRules();
+	public static final HashMap<Integer, ACHPageRule> achRules = buildRules();
 
-    //Create a nested key value pair referencing the record type and the field rules it holds
-    private static final HashMap<Integer, HashMap<Integer, ACHFieldRule>> buildFieldRules() {
+	public static ACHPageRule getAchPageRule(int achPageTypeNumber) {
+		return achRules.get(achPageTypeNumber);
+	}
 
-        HashMap<Integer, HashMap<Integer, ACHFieldRule>> achFieldRules = new HashMap<Integer, HashMap<Integer, ACHFieldRule>>();
+	public static ACHRecordRule getAchRecordRule(int achPageTypeNumber, int achRecordTypeNumber) {
+		return achRules.get(achPageTypeNumber)
+				.getOneAchRecordRules(achRecordTypeNumber);
+	}
 
-        Map<Integer, Integer> recordFieldGuide = Map.of(
-                1, 13,
-                5, 13,
-                6, 11,
-                7, 11,
-                8, 11,
-                9, 8
-        );
+	public static ACHFieldRule getAchFieldRule(int achPageTypeNumber, int achRecordTypeNumber, int achFieldRuleNumber) {
+		return achRules.get(achPageTypeNumber)
+				.getOneAchRecordRules(achRecordTypeNumber)
+				.getOneAchFieldRules(achFieldRuleNumber);
+	}
 
-        for (Map.Entry<Integer, Integer> entry : recordFieldGuide.entrySet()) {
-            //Initialize outer array keys
-            Integer recordNumber = entry.getKey();
-            Integer fieldNumber = entry.getValue();
+	private static final HashMap<Integer, ACHPageRule> buildRules() {
 
-            if (!achFieldRules.containsKey(recordNumber)) {
-                achFieldRules.put(recordNumber, new HashMap<Integer, ACHFieldRule>());
-            }
+		HashMap<Integer, ACHPageRule> achRules = new HashMap<Integer, ACHPageRule>();
+
+		int pageTypes = 1;
+		Integer achPageTypeNumber = 1;
+		while (achPageTypeNumber <= pageTypes) {
+
+			HashMap<Integer, ACHRecordRule> achRecordRules = new HashMap<Integer, ACHRecordRule>();
+
+			Map<Integer, Integer> recordFieldGuide = Map.of(
+					1, 13,
+					5, 13,
+					6, 11,
+					7, 11,
+					8, 11,
+					9, 8
+			);
+
+			for (Map.Entry<Integer, Integer> entry : recordFieldGuide.entrySet()) {
+				//Initialize outer array keys
+				Integer achRecordTypeNumber = entry.getKey();
+				Integer numberOfAchFieldsinRecord = entry.getValue();
+
+				HashMap<Integer, ACHFieldRule> achFieldRules = new HashMap<Integer, ACHFieldRule>(numberOfAchFieldsinRecord);
+
+				int achFieldRuleNumberBeingAdded = 1;
+				while (achFieldRuleNumberBeingAdded <= numberOfAchFieldsinRecord) {
+
+					ACHFieldRule fieldRule = mapFieldRule(achPageTypeNumber, achRecordTypeNumber, achFieldRuleNumberBeingAdded);
+					achFieldRules.put(achFieldRuleNumberBeingAdded, fieldRule);
+					achFieldRuleNumberBeingAdded += 1;
+				}
+
+				ACHRecordRule achRecordRule = mapRecordRule(achPageTypeNumber, achRecordTypeNumber, achFieldRules);
+
+				achRecordRules.put(achRecordTypeNumber, achRecordRule);
+			}
+			ACHPageRule achPageRule = mapPageRule(achPageTypeNumber, achRecordRules);
+			achRules.put(achPageTypeNumber, achPageRule);
+			achPageTypeNumber += 1;
+		}
+		return achRules;
+	}
+
+	private static final ACHPageRule mapPageRule(Integer achPageTypeNumber, HashMap<Integer, ACHRecordRule> achRecordRules) {
+
+		int expectedRecordModulo;
+
+		HashMap<String, Consumer<ACHPage>> achPageRuleTests = new HashMap<String, Consumer<ACHPage>>();
+
+		//TODO: Map other tests in ACHValidationTestSuite to each ACHPageRule.
+//		achPageRuleTests.put();
+
+		switch (achPageTypeNumber) {
+			case 1:
+				expectedRecordModulo = 10;
+				break;
+			default:
+				expectedRecordModulo = 0;
+				break;
+		}
+
+		return ACHPageRule.createNewInstance(expectedRecordModulo, achRecordRules, achPageRuleTests);
+	}
+
+	private static final ACHRecordRule mapRecordRule(Integer achPageTypeNumber, Integer achRecordTypeNumber, HashMap<Integer, ACHFieldRule> achFieldRules) {
+
+		String achRecordType;
+		int expectedNumberOfFields;
+		int permittedPreviousRecordTypeNumber[];
+		int permittedNextRecordTypeNumber[];
+		boolean isPossiblePaddingLine = false;
+		boolean required = true;
+		int expectedNumberOfCharacters = 94;
+
+		HashMap<String, Consumer<ACHRecord>> achRecordRuleTests = new HashMap<String, Consumer<ACHRecord>>();
+
+		//TODO: Map other tests in ACHValidationTestSuite to each ACHRecordRule.
+		achRecordRuleTests.put("isExpectedRecordLength", (achRecord) -> isExpectedRecordLength(achRecord));
 
 
-            int i = 0;
-            while (i < fieldNumber) {
+		switch (achPageTypeNumber.toString().concat(achRecordTypeNumber.toString())) {
+			case "11":
+				achRecordType = "file header";
+				expectedNumberOfFields = 13;
+				permittedPreviousRecordTypeNumber = new int[]{};
+				permittedNextRecordTypeNumber = new int[]{5};
+				break;
+			case "15":
+				achRecordType = "file header";
+				expectedNumberOfFields = 13;
+				permittedPreviousRecordTypeNumber = new int[]{};
+				permittedNextRecordTypeNumber = new int[]{6};
+				break;
+			case "16":
+				achRecordType = "file header";
+				expectedNumberOfFields = 13;
+				permittedPreviousRecordTypeNumber = new int[]{};
+				permittedNextRecordTypeNumber = new int[]{6, 7, 8};
+				break;
+			case "17":
+				achRecordType = "file header";
+				expectedNumberOfFields = 13;
+				permittedPreviousRecordTypeNumber = new int[]{};
+				permittedNextRecordTypeNumber = new int[]{6, 8};
+				required = false;
+				break;
+			case "18":
+				achRecordType = "file header";
+				expectedNumberOfFields = 13;
+				permittedPreviousRecordTypeNumber = new int[]{};
+				permittedNextRecordTypeNumber = new int[]{5, 9};
+				break;
+			case "19":
+				//can also be a padding record
+				achRecordType = "file header";
+				expectedNumberOfFields = 13;
+				permittedPreviousRecordTypeNumber = new int[]{};
+				permittedNextRecordTypeNumber = new int[]{9};
+				isPossiblePaddingLine = true;
+				break;
+			default:
+				throw new IllegalStateException("Unexpected value while creating an ACHRecordRule got: " + achPageTypeNumber.toString().concat(achRecordTypeNumber.toString()));
+		}
 
-                HashMap<String, Integer> fieldProperties = mapFieldRules(recordNumber, i+1);
+		return ACHRecordRule.createNewInstance(achPageTypeNumber, achRecordTypeNumber, achRecordType, expectedNumberOfFields, permittedPreviousRecordTypeNumber, permittedNextRecordTypeNumber, isPossiblePaddingLine, required, expectedNumberOfCharacters, achFieldRules, achRecordRuleTests);
+	}
 
-                achFieldRules.get(recordNumber).put(i+1, ACHFieldRule.createNewInstance(0000, recordNumber, i+1, fieldProperties.get("objectsCharacterLengthIs"), fieldProperties.get("objectTakesUpPositionInRecord")));
-                i += 1;
-            }
-        }
-        return achFieldRules;
-    }
+	private static final ACHFieldRule mapFieldRule(Integer achPageTypeNumber, Integer achRecordTypeNumber, Integer achFieldNumber) {
+		Integer achFieldLength;
+		Integer achFieldPosition;
+		ACHDataTypeRule achDataTypeRule;
+		HashMap<String, Consumer<ACHField>> achFieldRuleTests = new HashMap<String, Consumer<ACHField>>();
 
-    private static HashMap<String, Integer> mapFieldRules(Integer recordNumber, Integer fieldNumber) {
+		//TODO: Map other tests in ACHValidationTestSuite to each ACHFieldRule.
+//		achFieldRuleTests.put();
 
-        HashMap<String, Integer> fieldRules = new HashMap<String, Integer>();
+		//TODO: Add the correct ACHDataTypeRule to each ACHFieldRule.
+		switch (achPageTypeNumber.toString().concat(achRecordTypeNumber.toString().concat(achFieldNumber.toString()))) {
+			case "111":
+				achFieldLength = 1;
+				achFieldPosition = 1;
+				achDataTypeRule = ACHDataTypeRule.createNewInstance(DataType.SPECIFICVALUES, new String[]{"1"});
+				break;
+			case "112":
+				achFieldLength = 2;
+				achFieldPosition = 2;
+				achDataTypeRule = ACHDataTypeRule.createNewInstance(DataType.SPECIFICVALUES, new String[]{"1"});
+				break;
+			case "113":
+				achFieldLength = 10;
+				achFieldPosition = 4;
+				achDataTypeRule = ACHDataTypeRule.createNewInstance(DataType.SPECIFICVALUES, new String[]{"1"});
+				break;
+			case "114":
+				achFieldLength = 10;
+				achFieldPosition = 14;
+				achDataTypeRule = ACHDataTypeRule.createNewInstance(DataType.SPECIFICVALUES, new String[]{"1"});
+				break;
+			case "115":
+				achFieldLength = 6;
+				achFieldPosition = 24;
+				achDataTypeRule = ACHDataTypeRule.createNewInstance(DataType.SPECIFICVALUES, new String[]{"1"});
+				break;
+			case "116":
+				achFieldLength = 4;
+				achFieldPosition = 30;
+				achDataTypeRule = ACHDataTypeRule.createNewInstance(DataType.SPECIFICVALUES, new String[]{"1"});
+				break;
+			case "117":
+				achFieldLength = 1;
+				achFieldPosition = 34;
+				achDataTypeRule = ACHDataTypeRule.createNewInstance(DataType.SPECIFICVALUES, new String[]{"1"});
+				break;
+			case "118":
+				achFieldLength = 3;
+				achFieldPosition = 35;
+				achDataTypeRule = ACHDataTypeRule.createNewInstance(DataType.SPECIFICVALUES, new String[]{"1"});
+				break;
+			case "119":
+				achFieldLength = 2;
+				achFieldPosition = 38;
+				achDataTypeRule = ACHDataTypeRule.createNewInstance(DataType.SPECIFICVALUES, new String[]{"1"});
+				break;
+			case "1110":
+				achFieldLength = 1;
+				achFieldPosition = 40;
+				achDataTypeRule = ACHDataTypeRule.createNewInstance(DataType.SPECIFICVALUES, new String[]{"1"});
+				break;
+			case "1111":
+				achFieldLength = 23;
+				achFieldPosition = 41;
+				achDataTypeRule = ACHDataTypeRule.createNewInstance(DataType.SPECIFICVALUES, new String[]{"1"});
+				break;
+			case "1112":
+				achFieldLength = 23;
+				achFieldPosition = 64;
+				achDataTypeRule = ACHDataTypeRule.createNewInstance(DataType.SPECIFICVALUES, new String[]{"1"});
+				break;
+			case "1113":
+				achFieldLength = 8;
+				achFieldPosition = 87;
+				achDataTypeRule = ACHDataTypeRule.createNewInstance(DataType.SPECIFICVALUES, new String[]{"1"});
+				break;
+			case "151":
+				achFieldLength = 1;
+				achFieldPosition = 1;
+				achDataTypeRule = ACHDataTypeRule.createNewInstance(DataType.SPECIFICVALUES, new String[]{"1"});
+				break;
+			case "152":
+				achFieldLength = 3;
+				achFieldPosition = 2;
+				achDataTypeRule = ACHDataTypeRule.createNewInstance(DataType.SPECIFICVALUES, new String[]{"1"});
+				break;
+			case "153":
+				achFieldLength = 16;
+				achFieldPosition = 5;
+				achDataTypeRule = ACHDataTypeRule.createNewInstance(DataType.SPECIFICVALUES, new String[]{"1"});
+				break;
+			case "154":
+				achFieldLength = 20;
+				achFieldPosition = 21;
+				achDataTypeRule = ACHDataTypeRule.createNewInstance(DataType.SPECIFICVALUES, new String[]{"1"});
+				break;
+			case "155":
+				achFieldLength = 10;
+				achFieldPosition = 41;
+				achDataTypeRule = ACHDataTypeRule.createNewInstance(DataType.SPECIFICVALUES, new String[]{"1"});
+				break;
+			case "156":
+				achFieldLength = 3;
+				achFieldPosition = 51;
+				achDataTypeRule = ACHDataTypeRule.createNewInstance(DataType.SPECIFICVALUES, new String[]{"1"});
+				break;
+			case "157":
+				achFieldLength = 10;
+				achFieldPosition = 54;
+				achDataTypeRule = ACHDataTypeRule.createNewInstance(DataType.SPECIFICVALUES, new String[]{"1"});
+				break;
+			case "158":
+				achFieldLength = 6;
+				achFieldPosition = 64;
+				achDataTypeRule = ACHDataTypeRule.createNewInstance(DataType.SPECIFICVALUES, new String[]{"1"});
+				break;
+			case "159":
+				achFieldLength = 6;
+				achFieldPosition = 70;
+				achDataTypeRule = ACHDataTypeRule.createNewInstance(DataType.SPECIFICVALUES, new String[]{"1"});
+				break;
+			case "1510":
+				achFieldLength = 3;
+				achFieldPosition = 76;
+				achDataTypeRule = ACHDataTypeRule.createNewInstance(DataType.SPECIFICVALUES, new String[]{"1"});
+				break;
+			case "1511":
+				achFieldLength = 1;
+				achFieldPosition = 79;
+				achDataTypeRule = ACHDataTypeRule.createNewInstance(DataType.SPECIFICVALUES, new String[]{"1"});
+				break;
+			case "1512":
+				achFieldLength = 8;
+				achFieldPosition = 80;
+				achDataTypeRule = ACHDataTypeRule.createNewInstance(DataType.SPECIFICVALUES, new String[]{"1"});
+				break;
+			case "1513":
+				achFieldLength = 7;
+				achFieldPosition = 88;
+				achDataTypeRule = ACHDataTypeRule.createNewInstance(DataType.SPECIFICVALUES, new String[]{"1"});
+				break;
+			case "161":
+				achFieldLength = 1;
+				achFieldPosition = 1;
+				achDataTypeRule = ACHDataTypeRule.createNewInstance(DataType.SPECIFICVALUES, new String[]{"1"});
+				break;
+			case "162":
+				achFieldLength = 2;
+				achFieldPosition = 2;
+				achDataTypeRule = ACHDataTypeRule.createNewInstance(DataType.SPECIFICVALUES, new String[]{"1"});
+				break;
+			case "163":
+				achFieldLength = 8;
+				achFieldPosition = 4;
+				achDataTypeRule = ACHDataTypeRule.createNewInstance(DataType.SPECIFICVALUES, new String[]{"1"});
+				break;
+			case "164":
+				achFieldLength = 1;
+				achFieldPosition = 12;
+				achDataTypeRule = ACHDataTypeRule.createNewInstance(DataType.SPECIFICVALUES, new String[]{"1"});
+				break;
+			case "165":
+				achFieldLength = 17;
+				achFieldPosition = 13;
+				achDataTypeRule = ACHDataTypeRule.createNewInstance(DataType.SPECIFICVALUES, new String[]{"1"});
+				break;
+			case "166":
+				achFieldLength = 10;
+				achFieldPosition = 30;
+				achDataTypeRule = ACHDataTypeRule.createNewInstance(DataType.SPECIFICVALUES, new String[]{"1"});
+				break;
+			case "167":
+				achFieldLength = 15;
+				achFieldPosition = 40;
+				achDataTypeRule = ACHDataTypeRule.createNewInstance(DataType.SPECIFICVALUES, new String[]{"1"});
+				break;
+			case "168":
+				achFieldLength = 22;
+				achFieldPosition = 55;
+				achDataTypeRule = ACHDataTypeRule.createNewInstance(DataType.SPECIFICVALUES, new String[]{"1"});
+				break;
+			case "169":
+				achFieldLength = 2;
+				achFieldPosition = 77;
+				achDataTypeRule = ACHDataTypeRule.createNewInstance(DataType.SPECIFICVALUES, new String[]{"1"});
+				break;
+			case "1610":
+				achFieldLength = 1;
+				achFieldPosition = 79;
+				achDataTypeRule = ACHDataTypeRule.createNewInstance(DataType.SPECIFICVALUES, new String[]{"1"});
+				break;
+			case "1611":
+				achFieldLength = 15;
+				achFieldPosition = 80;
+				achDataTypeRule = ACHDataTypeRule.createNewInstance(DataType.SPECIFICVALUES, new String[]{"1"});
+				break;
+			case "171":
+				achFieldLength = 1;
+				achFieldPosition = 1;
+				achDataTypeRule = ACHDataTypeRule.createNewInstance(DataType.SPECIFICVALUES, new String[]{"1"});
+				break;
+			case "172":
+				achFieldLength = 2;
+				achFieldPosition = 2;
+				achDataTypeRule = ACHDataTypeRule.createNewInstance(DataType.SPECIFICVALUES, new String[]{"1"});
+				break;
+			case "173":
+				achFieldLength = 8;
+				achFieldPosition = 4;
+				achDataTypeRule = ACHDataTypeRule.createNewInstance(DataType.SPECIFICVALUES, new String[]{"1"});
+				break;
+			case "174":
+				achFieldLength = 1;
+				achFieldPosition = 12;
+				achDataTypeRule = ACHDataTypeRule.createNewInstance(DataType.SPECIFICVALUES, new String[]{"1"});
+				break;
+			case "175":
+				achFieldLength = 17;
+				achFieldPosition = 13;
+				achDataTypeRule = ACHDataTypeRule.createNewInstance(DataType.SPECIFICVALUES, new String[]{"1"});
+				break;
+			case "176":
+				achFieldLength = 10;
+				achFieldPosition = 30;
+				achDataTypeRule = ACHDataTypeRule.createNewInstance(DataType.SPECIFICVALUES, new String[]{"1"});
+				break;
+			case "177":
+				achFieldLength = 15;
+				achFieldPosition = 40;
+				achDataTypeRule = ACHDataTypeRule.createNewInstance(DataType.SPECIFICVALUES, new String[]{"1"});
+				break;
+			case "178":
+				achFieldLength = 22;
+				achFieldPosition = 55;
+				achDataTypeRule = ACHDataTypeRule.createNewInstance(DataType.SPECIFICVALUES, new String[]{"1"});
+				break;
+			case "179":
+				achFieldLength = 2;
+				achFieldPosition = 77;
+				achDataTypeRule = ACHDataTypeRule.createNewInstance(DataType.SPECIFICVALUES, new String[]{"1"});
+				break;
+			case "1710":
+				achFieldLength = 1;
+				achFieldPosition = 79;
+				achDataTypeRule = ACHDataTypeRule.createNewInstance(DataType.SPECIFICVALUES, new String[]{"1"});
+				break;
+			case "1711":
+				achFieldLength = 15;
+				achFieldPosition = 80;
+				achDataTypeRule = ACHDataTypeRule.createNewInstance(DataType.SPECIFICVALUES, new String[]{"1"});
+				break;
+			case "181":
+				achFieldLength = 1;
+				achFieldPosition = 1;
+				achDataTypeRule = ACHDataTypeRule.createNewInstance(DataType.SPECIFICVALUES, new String[]{"1"});
+				break;
+			case "182":
+				achFieldLength = 3;
+				achFieldPosition = 2;
+				achDataTypeRule = ACHDataTypeRule.createNewInstance(DataType.SPECIFICVALUES, new String[]{"1"});
+				break;
+			case "183":
+				achFieldLength = 6;
+				achFieldPosition = 5;
+				achDataTypeRule = ACHDataTypeRule.createNewInstance(DataType.SPECIFICVALUES, new String[]{"1"});
+				break;
+			case "184":
+				achFieldLength = 10;
+				achFieldPosition = 11;
+				achDataTypeRule = ACHDataTypeRule.createNewInstance(DataType.SPECIFICVALUES, new String[]{"1"});
+				break;
+			case "185":
+				achFieldLength = 12;
+				achFieldPosition = 21;
+				achDataTypeRule = ACHDataTypeRule.createNewInstance(DataType.SPECIFICVALUES, new String[]{"1"});
+				break;
+			case "186":
+				achFieldLength = 12;
+				achFieldPosition = 33;
+				achDataTypeRule = ACHDataTypeRule.createNewInstance(DataType.SPECIFICVALUES, new String[]{"1"});
+				break;
+			case "187":
+				achFieldLength = 10;
+				achFieldPosition = 45;
+				achDataTypeRule = ACHDataTypeRule.createNewInstance(DataType.SPECIFICVALUES, new String[]{"1"});
+				break;
+			case "188":
+				achFieldLength = 19;
+				achFieldPosition = 55;
+				achDataTypeRule = ACHDataTypeRule.createNewInstance(DataType.SPECIFICVALUES, new String[]{"1"});
+				break;
+			case "189":
+				achFieldLength = 6;
+				achFieldPosition = 74;
+				achDataTypeRule = ACHDataTypeRule.createNewInstance(DataType.SPECIFICVALUES, new String[]{"1"});
+				break;
+			case "1810":
+				achFieldLength = 8;
+				achFieldPosition = 80;
+				achDataTypeRule = ACHDataTypeRule.createNewInstance(DataType.SPECIFICVALUES, new String[]{"1"});
+				break;
+			case "1811":
+				achFieldLength = 7;
+				achFieldPosition = 88;
+				achDataTypeRule = ACHDataTypeRule.createNewInstance(DataType.SPECIFICVALUES, new String[]{"1"});
+				break;
+			case "191":
+				achFieldLength = 1;
+				achFieldPosition = 1;
+				achDataTypeRule = ACHDataTypeRule.createNewInstance(DataType.SPECIFICVALUES, new String[]{"1"});
+				break;
+			case "192":
+				achFieldLength = 6;
+				achFieldPosition = 2;
+				achDataTypeRule = ACHDataTypeRule.createNewInstance(DataType.SPECIFICVALUES, new String[]{"1"});
+				break;
+			case "193":
+				achFieldLength = 6;
+				achFieldPosition = 8;
+				achDataTypeRule = ACHDataTypeRule.createNewInstance(DataType.SPECIFICVALUES, new String[]{"1"});
+				break;
+			case "194":
+				achFieldLength = 8;
+				achFieldPosition = 14;
+				achDataTypeRule = ACHDataTypeRule.createNewInstance(DataType.SPECIFICVALUES, new String[]{"1"});
+				break;
+			case "195":
+				achFieldLength = 10;
+				achFieldPosition = 22;
+				achDataTypeRule = ACHDataTypeRule.createNewInstance(DataType.SPECIFICVALUES, new String[]{"1"});
+				break;
+			case "196":
+				achFieldLength = 12;
+				achFieldPosition = 32;
+				achDataTypeRule = ACHDataTypeRule.createNewInstance(DataType.SPECIFICVALUES, new String[]{"1"});
+				break;
+			case "197":
+				achFieldLength = 12;
+				achFieldPosition = 44;
+				achDataTypeRule = ACHDataTypeRule.createNewInstance(DataType.SPECIFICVALUES, new String[]{"1"});
+				break;
+			case "198":
+				achFieldLength = 39;
+				achFieldPosition = 56;
+				achDataTypeRule = ACHDataTypeRule.createNewInstance(DataType.SPECIFICVALUES, new String[]{"1"});
+				break;
+			default:
+				throw new IllegalStateException("Unexpected value while creating an ACHFieldRule got: " + achPageTypeNumber.toString().concat(achRecordTypeNumber.toString().concat(achFieldNumber.toString())));
+		}
 
-        Integer fieldLength;
-        Integer fieldPosition;
+		return ACHFieldRule.createNewInstance(achPageTypeNumber, achRecordTypeNumber, achFieldNumber, achFieldLength, achFieldPosition, achDataTypeRule, achFieldRuleTests);
+	}
 
-        //todo: Combine cases for fields that have the same rules. IDE detects duplicate values.
-        //todo: Possibly use this switch to map the fields more complex rules as well.
-        switch(recordNumber.toString().concat(fieldNumber.toString())){
-            case "11":
-                fieldLength = 1;
-                fieldPosition = 1;
-                break;
-            case "12":
-                fieldLength = 2;
-                fieldPosition = 2;
-                break;
-            case "13":
-                fieldLength = 10;
-                fieldPosition = 4;
-                break;
-            case "14":
-                fieldLength = 10;
-                fieldPosition = 14;
-                break;
-            case "15":
-                fieldLength = 6;
-                fieldPosition = 24;
-                break;
-            case "16":
-                fieldLength = 4;
-                fieldPosition = 30;
-                break;
-            case "17":
-                fieldLength = 1;
-                fieldPosition = 34;
-                break;
-            case "18":
-                fieldLength = 3;
-                fieldPosition = 35;
-                break;
-            case "19":
-                fieldLength = 2;
-                fieldPosition = 38;
-                break;
-            case "110":
-                fieldLength = 1;
-                fieldPosition = 40;
-                break;
-            case "111":
-                fieldLength = 23;
-                fieldPosition = 41;
-                break;
-            case "112":
-                fieldLength = 23;
-                fieldPosition = 64;
-                break;
-            case "113":
-                fieldLength = 8;
-                fieldPosition = 87;
-                break;
-            case "51":
-                fieldLength = 1;
-                fieldPosition = 1;
-                break;
-            case "52":
-                fieldLength = 3;
-                fieldPosition = 2;
-                break;
-            case "53":
-                fieldLength = 16;
-                fieldPosition = 5;
-                break;
-            case "54":
-                fieldLength = 20;
-                fieldPosition = 21;
-                break;
-            case "55":
-                fieldLength = 10;
-                fieldPosition = 41;
-                break;
-            case "56":
-                fieldLength = 3;
-                fieldPosition = 51;
-                break;
-            case "57":
-                fieldLength = 10;
-                fieldPosition = 54;
-                break;
-            case "58":
-                fieldLength = 6;
-                fieldPosition = 64;
-                break;
-            case "59":
-                fieldLength = 6;
-                fieldPosition = 70;
-                break;
-            case "510":
-                fieldLength = 3;
-                fieldPosition = 76;
-                break;
-            case "511":
-                fieldLength = 1;
-                fieldPosition = 79;
-                break;
-            case "512":
-                fieldLength = 8;
-                fieldPosition = 80;
-                break;
-            case "513":
-                fieldLength = 7;
-                fieldPosition = 88;
-                break;
-            case "61":
-                fieldLength = 1;
-                fieldPosition = 1;
-                break;
-            case "62":
-                fieldLength = 2;
-                fieldPosition = 2;
-                break;
-            case "63":
-                fieldLength = 8;
-                fieldPosition = 4;
-                break;
-            case "64":
-                fieldLength = 1;
-                fieldPosition = 12;
-                break;
-            case "65":
-                fieldLength = 17;
-                fieldPosition = 13;
-                break;
-            case "66":
-                fieldLength = 10;
-                fieldPosition = 30;
-                break;
-            case "67":
-                fieldLength = 15;
-                fieldPosition = 40;
-                break;
-            case "68":
-                fieldLength = 22;
-                fieldPosition = 55;
-                break;
-            case "69":
-                fieldLength = 2;
-                fieldPosition = 77;
-                break;
-            case "610":
-                fieldLength = 1;
-                fieldPosition = 79;
-                break;
-            case "611":
-                fieldLength = 15;
-                fieldPosition = 80;
-                break;
-            case "71":
-                fieldLength = 1;
-                fieldPosition = 1;
-                break;
-            case "72":
-                fieldLength = 2;
-                fieldPosition = 2;
-                break;
-            case "73":
-                fieldLength = 8;
-                fieldPosition = 4;
-                break;
-            case "74":
-                fieldLength = 1;
-                fieldPosition = 12;
-                break;
-            case "75":
-                fieldLength = 17;
-                fieldPosition = 13;
-                break;
-            case "76":
-                fieldLength = 10;
-                fieldPosition = 30;
-                break;
-            case "77":
-                fieldLength = 15;
-                fieldPosition = 40;
-                break;
-            case "78":
-                fieldLength = 22;
-                fieldPosition = 55;
-                break;
-            case "79":
-                fieldLength = 2;
-                fieldPosition = 77;
-                break;
-            case "710":
-                fieldLength = 1;
-                fieldPosition = 79;
-                break;
-            case "711":
-                fieldLength = 15;
-                fieldPosition = 80;
-                break;
-            case "81":
-                fieldLength = 1;
-                fieldPosition = 1;
-                break;
-            case "82":
-                fieldLength = 3;
-                fieldPosition = 2;
-                break;
-            case "83":
-                fieldLength = 6;
-                fieldPosition = 5;
-                break;
-            case "84":
-                fieldLength = 10;
-                fieldPosition = 11;
-                break;
-            case "85":
-                fieldLength = 12;
-                fieldPosition = 21;
-                break;
-            case "86":
-                fieldLength = 12;
-                fieldPosition = 33;
-                break;
-            case "87":
-                fieldLength = 10;
-                fieldPosition = 45;
-                break;
-            case "88":
-                fieldLength = 19;
-                fieldPosition = 55;
-                break;
-            case "89":
-                fieldLength = 6;
-                fieldPosition = 74;
-                break;
-            case "810":
-                fieldLength = 8;
-                fieldPosition = 80;
-                break;
-            case "811":
-                fieldLength = 7;
-                fieldPosition = 88;
-                break;
-            case "91":
-                fieldLength = 1;
-                fieldPosition = 1;
-                break;
-            case "92":
-                fieldLength = 6;
-                fieldPosition = 2;
-                break;
-            case "93":
-                fieldLength = 6;
-                fieldPosition = 8;
-                break;
-            case "94":
-                fieldLength = 8;
-                fieldPosition = 14;
-                break;
-            case "95":
-                fieldLength = 10;
-                fieldPosition = 22;
-                break;
-            case "96":
-                fieldLength = 12;
-                fieldPosition = 32;
-                break;
-            case "97":
-                fieldLength = 12;
-                fieldPosition = 44;
-                break;
-            case "98":
-                fieldLength = 39;
-                fieldPosition = 56;
-                break;
-            default:
-                fieldLength = 22;
-                fieldPosition = 120;
-                break;
-        }
-
-        fieldRules.put("objectsCharacterLengthIs", fieldLength);
-        fieldRules.put("objectTakesUpPositionInRecord", fieldPosition);
-
-        return fieldRules;
-    }
-
-    /**
-     * Set the field length and positions for every possible record and field.
-     *
-     * @return
-     */
-    public static HashMap<Integer, HashMap<Integer, ACHFieldRule>> getAchFieldRules() {
-        return achFieldRules;
-    }
 }

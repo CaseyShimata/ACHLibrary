@@ -1,53 +1,111 @@
 package com.loanpro.achlibrary.model;
 
+import com.loanpro.achlibrary.dictionary.ACHValidationTestSuite;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.Callable;
+import java.util.function.Consumer;
+
+import static com.loanpro.achlibrary.dictionary.ACHValidationTestSuite.isExpectedRecordLength;
+
 public class ACHRecordRule {
-    private final Boolean required;
-    private final String paddingPosition;
-    private final String paddingChar;
-    private final Integer paddingLength;
-    private final Integer numberOfFields;
-    private final Integer numberOfCharacters;
-    private final Integer reportedChars;
 
-    private ACHRecordRule(Boolean required, String paddingPosition, String paddingChar, Integer paddingLength, Integer numberOfFields, Integer numberOfCharacters, Integer reportedChars) {
-        this.required = required;
-        this.paddingPosition = paddingPosition;
-        this.paddingChar = paddingChar;
-        this.paddingLength = paddingLength;
-        this.numberOfFields = numberOfFields;
-        this.numberOfCharacters = numberOfCharacters;
-        this.reportedChars = reportedChars;
-    }
+	private final int achPageTypeNumber;
+	private final int achRecordTypeNumber;
+	private final String achRecordType;
+	private final int expectedNumberOfFields;
+	private final int permittedPreviousRecordTypeNumber[];
+	private final int permittedNextRecordTypeNumber[];
+	private final boolean isPossiblePaddingLine;
+	private final boolean required;
+	private final int expectedNumberOfCharacters;
+	private final HashMap<Integer, ACHFieldRule> achFieldRules;
+	//Stores the tests for this rule. It might source from a test suite so that different rules can reuse that test
+	private final Map<String, Consumer<ACHRecord>> achRecordRuleTests;
 
-    public static ACHRecordRule createNewInstance(Boolean required, String paddingPosition, String paddingChar, Integer paddingLength, Integer numberOfFields, Integer numberOfCharacters, Integer reportedChars) {
-        return new ACHRecordRule(required, paddingPosition, paddingChar, paddingLength, numberOfFields, numberOfCharacters, reportedChars);
-    }
+	private ACHRecordRule(int achPageTypeNumber, int achRecordTypeNumber, String achRecordType, int expectedNumberOfFields, int[] permittedPreviousRecordTypeNumber, int[] permittedNextRecordTypeNumber, boolean isPossiblePaddingLine, boolean required, int expectedNumberOfCharacters, HashMap<Integer, ACHFieldRule> achFieldRules, Map<String, Consumer<ACHRecord>> achRecordRuleTests) {
+		this.achPageTypeNumber = achPageTypeNumber;
+		this.achRecordTypeNumber = achRecordTypeNumber;
+		this.achRecordType = achRecordType;
+		this.expectedNumberOfFields = expectedNumberOfFields;
+		this.permittedPreviousRecordTypeNumber = permittedPreviousRecordTypeNumber;
+		this.permittedNextRecordTypeNumber = permittedNextRecordTypeNumber;
+		this.isPossiblePaddingLine = isPossiblePaddingLine;
+		this.required = required;
+		this.expectedNumberOfCharacters = expectedNumberOfCharacters;
+		this.achFieldRules = achFieldRules;
+		this.achRecordRuleTests = achRecordRuleTests;
+	}
 
-    public Boolean getRequired() {
-        return required;
-    }
+	public static ACHRecordRule createNewInstance(int achPageTypeNumber,
+	                                              int achRecordTypeNumber,
+	                                              String achRecordType,
+	                                              int expectedNumberOfFields,
+	                                              int[] permittedPreviousRecordTypeNumber,
+	                                              int[] permittedNextRecordTypeNumber,
+	                                              boolean isPossiblePaddingLine,
+	                                              boolean required,
+	                                              int expectedNumberOfCharacters,
+	                                              HashMap<Integer, ACHFieldRule> achFieldRules, HashMap<String, Consumer<ACHRecord>> achRecordRuleTests) {
 
-    public String getPaddingPosition() {
-        return paddingPosition;
-    }
+		return new ACHRecordRule(achPageTypeNumber,
+				achRecordTypeNumber,
+				achRecordType,
+				expectedNumberOfFields,
+				permittedPreviousRecordTypeNumber,
+				permittedNextRecordTypeNumber,
+				isPossiblePaddingLine,
+				required,
+				expectedNumberOfCharacters,
+				achFieldRules, achRecordRuleTests);
+	}
 
-    public String getPaddingChar() {
-        return paddingChar;
-    }
+	public int getAchPageTypeNumber() {
+		return achPageTypeNumber;
+	}
 
-    public Integer getPaddingLength() {
-        return paddingLength;
-    }
+	public int getAchRecordTypeNumber() {
+		return achRecordTypeNumber;
+	}
 
-    public Integer getNumberOfFields() {
-        return numberOfFields;
-    }
+	public String getAchRecordType() {
+		return achRecordType;
+	}
 
-    public Integer getNumberOfCharacters() {
-        return numberOfCharacters;
-    }
+	public int getExpectedNumberOfFields() {
+		return expectedNumberOfFields;
+	}
 
-    public Integer getReportedChars() {
-        return reportedChars;
-    }
+	public int[] getPermittedPreviousRecordTypeNumber() {
+		return permittedPreviousRecordTypeNumber;
+	}
+
+	public int[] getPermittedNextRecordTypeNumber() {
+		return permittedNextRecordTypeNumber;
+	}
+
+	public boolean isPossiblePaddingLine() {
+		return isPossiblePaddingLine;
+	}
+
+	public boolean isRequired() {
+		return required;
+	}
+
+	public int getExpectedNumberOfCharacters() {
+		return expectedNumberOfCharacters;
+	}
+
+	public HashMap<Integer, ACHFieldRule> getAchFieldRules() {
+		return achFieldRules;
+	}
+
+	public ACHFieldRule getOneAchFieldRules(int achFieldNumber) {
+		return this.achFieldRules.get(achFieldNumber);
+	}
+
+	public Map<String, Consumer<ACHRecord>> getAchRecordRuleTests() {
+		return achRecordRuleTests;
+	}
 }

@@ -1,128 +1,95 @@
 package com.loanpro.achlibrary.model;
 
+import java.util.Map;
+import java.util.function.Consumer;
+
 public final class ACHFieldRule {
-    final private int achFileNumber;
-    final private int recordNumber;
-    final private int fieldNumber;
-    final private Integer objectsCharacterLengthIs;
-    final private Integer objectTakesUpPositionInRecord;
-    private String fieldName;
-    private String fieldRuleDescription;
-    private String paddingPosition;
-    private String paddingChar;
-    private Integer paddingLength;
-    private String dataTypeIs;
-    private String followsASiblingRecordFieldSequencingRule;
-    private Integer isNumberOfRecordsDividedByTen;
-    private Integer isTheObjectsImmediateChildCount;
-    private Integer isSumOfCountOfTwoChildren;
-    private Integer isValueOfOtherField;
-    private Integer isValueOfOtherFieldInOtherRecord;
-    private Integer isSumOfAllSiblingOfOtherField;
-    private Integer is0dependentOnValueOfOtherField;
-    private Integer isTheCurrentObjectsIndexPlusOne;
-    private Integer isTheEndingNumberOfOtherField;
-    private int[] isOneOfASetOfValues;
+    private final Integer achPageTypeNumber;
+    private final Integer achRecordTypeNumber;
+    private final Integer achFieldNumber;
+    private String achFieldName;
+    private String achFieldRuleDescription;
+    private final Integer expectedCharacterLength;
+    private final Integer expectedPositionInRecord;
+    private final ACHDataTypeRule achFieldDataTypeRule;
+    private final Map<String, Consumer<ACHField>> achFieldRuleTests;
 
+//    private String followsASiblingRecordFieldSequencingRule;
+//    private Integer isNumberOfRecordsDividedByTen;
+//    private Integer isTheObjectsImmediateChildCount;
+//    private Integer isSumOfCountOfTwoChildren;
+//    private Integer isValueOfOtherField;
+//    private Integer isValueOfOtherFieldInOtherRecord;
+//    private Integer isSumOfAllSiblingOfOtherField;
+//    private Integer is0dependentOnValueOfOtherField;
+//    private Integer isTheCurrentObjectsIndexPlusOne;
+//    private Integer isTheEndingNumberOfOtherField;
 
-    private ACHFieldRule(int achFileNumber, int recordNumber, int fieldNumber, Integer objectsCharacterLengthIs, Integer objectTakesUpPositionInRecord) {
-        this.achFileNumber = achFileNumber;
-        this.recordNumber = recordNumber;
-        this.fieldNumber = fieldNumber;
-        this.objectsCharacterLengthIs = objectsCharacterLengthIs;
-        this.objectTakesUpPositionInRecord = objectTakesUpPositionInRecord;
+    private ACHFieldRule(Integer achPageTypeNumber,
+                         Integer achRecordTypeNumber,
+                         Integer achFieldNumber,
+                         Integer expectedCharacterLength,
+                         Integer expectedPositionInRecord,
+                         ACHDataTypeRule achFieldDataTypeRule,
+                         Map<String, Consumer<ACHField>> achFieldRuleTests) {
+        this.achPageTypeNumber = achPageTypeNumber;
+        this.achRecordTypeNumber = achRecordTypeNumber;
+        this.achFieldNumber = achFieldNumber;
+        this.expectedCharacterLength = expectedCharacterLength;
+        this.expectedPositionInRecord = expectedPositionInRecord;
+        this.achFieldDataTypeRule = achFieldDataTypeRule;
+        this.achFieldRuleTests = achFieldRuleTests;
     }
 
-    public static ACHFieldRule createNewInstance(int achFileNumber, int recordNumber, int fieldNumber, Integer objectsCharacterLengthIs, Integer objectTakesUpPositionInRecord) {
-        return new ACHFieldRule(achFileNumber, recordNumber, fieldNumber,objectsCharacterLengthIs , objectTakesUpPositionInRecord);
+    public static ACHFieldRule createNewInstance(Integer achPageTypeNumber,
+                                                 Integer achRecordTypeNumber,
+                                                 Integer fieldNumber,
+                                                 Integer objectsCharacterLengthIs,
+                                                 Integer objectTakesUpPositionInRecord,
+                                                 ACHDataTypeRule achFieldDataTypeRule,
+                                                 Map<String, Consumer<ACHField>> achFieldRuleTests) {
+        return new ACHFieldRule(achPageTypeNumber,
+                achRecordTypeNumber,
+                fieldNumber,
+                objectsCharacterLengthIs,
+                objectTakesUpPositionInRecord,
+                achFieldDataTypeRule,
+                achFieldRuleTests);
     }
 
-
-    public int getAchFileNumber() {
-        return achFileNumber;
+    public Integer getAchPageTypeNumber() {
+        return achPageTypeNumber;
     }
 
-    public int getRecordNumber() {
-        return recordNumber;
+    public Integer getAchRecordTypeNumber() {
+        return achRecordTypeNumber;
     }
 
-    public int getFieldNumber() {
-        return fieldNumber;
+    public Integer getAchFieldNumber() {
+        return achFieldNumber;
     }
 
-    public Integer getObjectsCharacterLengthIs() {
-        return objectsCharacterLengthIs;
+    public String getAchFieldName() {
+        return achFieldName;
     }
 
-    public Integer getObjectTakesUpPositionInRecord() {
-        return objectTakesUpPositionInRecord;
+    public String getAchFieldRuleDescription() {
+        return achFieldRuleDescription;
     }
 
-    public String getFieldName() {
-        return fieldName;
+    public Integer getExpectedCharacterLength() {
+        return expectedCharacterLength;
     }
 
-    public String getFieldRuleDescription() {
-        return fieldRuleDescription;
+    public Integer getExpectedPositionInRecord() {
+        return expectedPositionInRecord;
     }
 
-    public String getPaddingPosition() {
-        return paddingPosition;
+    public ACHDataTypeRule getAchFieldDataTypeRule() {
+        return achFieldDataTypeRule;
     }
 
-    public String getPaddingChar() {
-        return paddingChar;
-    }
-
-    public Integer getPaddingLength() {
-        return paddingLength;
-    }
-
-    public String getDataTypeIs() {
-        return dataTypeIs;
-    }
-
-    public String getFollowsASiblingRecordFieldSequencingRule() {
-        return followsASiblingRecordFieldSequencingRule;
-    }
-
-    public Integer getIsNumberOfRecordsDividedByTen() {
-        return isNumberOfRecordsDividedByTen;
-    }
-
-    public Integer getIsTheObjectsImmediateChildCount() {
-        return isTheObjectsImmediateChildCount;
-    }
-
-    public Integer getIsSumOfCountOfTwoChildren() {
-        return isSumOfCountOfTwoChildren;
-    }
-
-    public Integer getIsValueOfOtherField() {
-        return isValueOfOtherField;
-    }
-
-    public Integer getIsValueOfOtherFieldInOtherRecord() {
-        return isValueOfOtherFieldInOtherRecord;
-    }
-
-    public Integer getIsSumOfAllSiblingOfOtherField() {
-        return isSumOfAllSiblingOfOtherField;
-    }
-
-    public Integer getIs0dependentOnValueOfOtherField() {
-        return is0dependentOnValueOfOtherField;
-    }
-
-    public Integer getIsTheCurrentObjectsIndexPlusOne() {
-        return isTheCurrentObjectsIndexPlusOne;
-    }
-
-    public Integer getIsTheEndingNumberOfOtherField() {
-        return isTheEndingNumberOfOtherField;
-    }
-
-    public int[] getIsOneOfASetOfValues() {
-        return isOneOfASetOfValues;
+    public Map<String, Consumer<ACHField>> getAchFieldRuleTests() {
+        return achFieldRuleTests;
     }
 }

@@ -1,22 +1,31 @@
 package com.loanpro.achlibrary.model;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.function.Consumer;
+
 public class ACHPageRule {
 
-    private final int expectedRecordCount;
+    private final int expectedRecordModulo;
+    private final HashMap<Integer, ACHRecordRule> achRecordRules;
+    private final Map<String, Consumer<ACHPage>> achPageRuleTests;
 
-    public ACHPageRule(int expectedRecordCount) {
-        this.expectedRecordCount = expectedRecordCount;
+
+    private ACHPageRule(int expectedRecordModulo, HashMap<Integer, ACHRecordRule> achRecordRules, Map<String, Consumer<ACHPage>> achPageRuleTests) {
+        this.expectedRecordModulo = expectedRecordModulo;
+        this.achRecordRules = achRecordRules;
+        this.achPageRuleTests = achPageRuleTests;
     }
 
-    public int getExpectedRecordCount() {
-        return expectedRecordCount;
+    public static ACHPageRule createNewInstance(int expectedRecordCountModulo, HashMap<Integer, ACHRecordRule> achRecordRules, Map<String, Consumer<ACHPage>> achPageRuleTests){
+        return new ACHPageRule(expectedRecordCountModulo, achRecordRules, achPageRuleTests);
     }
 
-    //Check if the pages record count is modulo of the expectedRecordCount. it returns a new ACHValidationTest with the results.
-    public final ACHValidationTest isExpectedRecordCount(ACHPage achPage){
-        String message = "the record count is " + achPage.getAchRecords().size() +  " the expected count is " + expectedRecordCount ;
-        boolean isPass = achPage.getAchRecords().size() % expectedRecordCount == 0 ? true : false;
+    public int getExpectedRecordModulo() {
+        return expectedRecordModulo;
+    }
 
-        return new ACHValidationTest(achPage.getPageNumber(),"isExpectedRecordCount", message, isPass);
+    public ACHRecordRule getOneAchRecordRules(int achRecordTypeNumber) {
+        return this.achRecordRules.get(achRecordTypeNumber);
     }
 }

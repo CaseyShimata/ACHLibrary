@@ -1,30 +1,30 @@
 package com.loanpro.achlibrary.model;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.function.Consumer;
 
 public class ACHField {
     private int achPageNumber;
-    private int achLineNumber;
+    private int achPageTypeNumber;
+    private int achRecordNumber;
     private int achRecordTypeNumber;
-    private int achFieldNumber;
+    private int achFieldRuleNumber;
     private ArrayList<Character> currentValue;
     private Integer currentPosition;
     private ACHFieldRule achFieldRule;
-    private ArrayList<ACHValidationTest> achValidationTests;
+    private HashMap<String, ACHValidationTest> achValidationTests;
 
-    //todo: step through and determine where to get the page, line, record, and field number then use this constructor
-    public ACHField(int achPageNumber, int achLineNumber, int achRecordTypeNumber, int achFieldNumber, ArrayList<Character> currentValue, Integer currentPosition) {
+    public ACHField(int achPageNumber, int achPageTypeNumber, int achRecordNumber, int achRecordTypeNumber, int achFieldRuleNumber, ArrayList<Character> currentValue, Integer currentPosition, ACHFieldRule achFieldRule) {
         this.achPageNumber = achPageNumber;
-        this.achLineNumber = achLineNumber;
+        this.achPageTypeNumber = achPageTypeNumber;
+        this.achRecordNumber = achRecordNumber;
         this.achRecordTypeNumber = achRecordTypeNumber;
-        this.achFieldNumber = achFieldNumber;
+        this.achFieldRuleNumber = achFieldRuleNumber;
         this.currentValue = currentValue;
         this.currentPosition = currentPosition;
-    }
-
-    public ACHField(ArrayList<Character> currentValue, Integer currentPosition) {
-        this.currentValue = currentValue;
-        this.currentPosition = currentPosition;
+        this.achFieldRule = achFieldRule;
     }
 
     public int getAchPageNumber() {
@@ -35,12 +35,12 @@ public class ACHField {
         this.achPageNumber = achPageNumber;
     }
 
-    public int getAchLineNumber() {
-        return achLineNumber;
+    public int getAchRecordNumber() {
+        return achRecordNumber;
     }
 
-    public void setAchLineNumber(int achLineNumber) {
-        this.achLineNumber = achLineNumber;
+    public void setAchRecordNumber(int achRecordNumber) {
+        this.achRecordNumber = achRecordNumber;
     }
 
     public int getAchRecordTypeNumber() {
@@ -51,12 +51,12 @@ public class ACHField {
         this.achRecordTypeNumber = achRecordTypeNumber;
     }
 
-    public int getAchFieldNumber() {
-        return achFieldNumber;
+    public int getAchFieldRuleNumber() {
+        return achFieldRuleNumber;
     }
 
-    public void setAchFieldNumber(int achFieldNumber) {
-        this.achFieldNumber = achFieldNumber;
+    public void setAchFieldRuleNumber(int achFieldRuleNumber) {
+        this.achFieldRuleNumber = achFieldRuleNumber;
     }
 
     public ArrayList<Character> getCurrentValue() {
@@ -83,15 +83,24 @@ public class ACHField {
         this.achFieldRule = achFieldRule;
     }
 
-    public ArrayList<ACHValidationTest> getAchValidationTests() {
+    public HashMap<String, ACHValidationTest> getAchValidationTests() {
         return achValidationTests;
     }
 
-    public void setAchValidationTests(ArrayList<ACHValidationTest> achValidationTests) {
+    public void setAchValidationTests(HashMap<String, ACHValidationTest> achValidationTests) {
         this.achValidationTests = achValidationTests;
     }
 
-    public void appendToValidationTests(ACHValidationTest ACHValidationTest){
-        this.achValidationTests.add(ACHValidationTest);
+    public void addToAchValidationTests(String achValidationTestName, ACHValidationTest ACHValidationTest){
+        this.achValidationTests.put(achValidationTestName, ACHValidationTest);
+    }
+
+    public void runAchFieldValidationTests(){
+        // Run the ACHField's ACHFieldRule's tests adding the resulting ACHValidationTests to the current ACHField
+        for (Map.Entry<String, Consumer<ACHField>> test : this.achFieldRule.getAchFieldRuleTests().entrySet()) {
+            Consumer<ACHField> achValidationTest = test.getValue();
+//            TODO: Add the Verify DataType regex to the tests.
+            achValidationTest.accept(this);
+        }
     }
 }

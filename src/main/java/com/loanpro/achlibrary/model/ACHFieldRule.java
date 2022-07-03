@@ -1,48 +1,71 @@
 package com.loanpro.achlibrary.model;
 
+import java.util.Map;
+import java.util.function.Consumer;
+
 public final class ACHFieldRule {
-    final private int achRecordNumber;
-    final private int achFieldNumber;
+    private final Integer achPageTypeNumber;
+    private final Integer achRecordTypeNumber;
+    private final Integer achFieldNumber;
     private String achFieldName;
     private String achFieldRuleDescription;
-    final private Integer objectsCharacterLengthIs;
-    final private Integer objectTakesUpPositionInRecord;
+    private final Integer expectedCharacterLength;
+    private final Integer expectedPositionInRecord;
+    private final ACHDataTypeRule achFieldDataTypeRule;
+    private final Map<String, Consumer<ACHField>> achFieldRuleTests;
 
+//    private String followsASiblingRecordFieldSequencingRule;
+//    private Integer isNumberOfRecordsDividedByTen;
+//    private Integer isTheObjectsImmediateChildCount;
+//    private Integer isSumOfCountOfTwoChildren;
+//    private Integer isValueOfOtherField;
+//    private Integer isValueOfOtherFieldInOtherRecord;
+//    private Integer isSumOfAllSiblingOfOtherField;
+//    private Integer is0dependentOnValueOfOtherField;
+//    private Integer isTheCurrentObjectsIndexPlusOne;
+//    private Integer isTheEndingNumberOfOtherField;
 
-
-    private String paddingPosition;
-    private String paddingChar;
-    private Integer paddingLength;
-    private String dataTypeIs;
-    private String followsASiblingRecordFieldSequencingRule;
-    private Integer isNumberOfRecordsDividedByTen;
-    private Integer isTheObjectsImmediateChildCount;
-    private Integer isSumOfCountOfTwoChildren;
-    private Integer isValueOfOtherField;
-    private Integer isValueOfOtherFieldInOtherRecord;
-    private Integer isSumOfAllSiblingOfOtherField;
-    private Integer is0dependentOnValueOfOtherField;
-    private Integer isTheCurrentObjectsIndexPlusOne;
-    private Integer isTheEndingNumberOfOtherField;
-    private int[] isOneOfASetOfValues;
-
-
-    private ACHFieldRule(int achRecordNumber, int achFieldNumber, Integer objectsCharacterLengthIs, Integer objectTakesUpPositionInRecord) {
-        this.achRecordNumber = achRecordNumber;
+    private ACHFieldRule(Integer achPageTypeNumber,
+                         Integer achRecordTypeNumber,
+                         Integer achFieldNumber,
+                         Integer expectedCharacterLength,
+                         Integer expectedPositionInRecord,
+                         ACHDataTypeRule achFieldDataTypeRule,
+                         Map<String, Consumer<ACHField>> achFieldRuleTests) {
+        this.achPageTypeNumber = achPageTypeNumber;
+        this.achRecordTypeNumber = achRecordTypeNumber;
         this.achFieldNumber = achFieldNumber;
-        this.objectsCharacterLengthIs = objectsCharacterLengthIs;
-        this.objectTakesUpPositionInRecord = objectTakesUpPositionInRecord;
+        this.expectedCharacterLength = expectedCharacterLength;
+        this.expectedPositionInRecord = expectedPositionInRecord;
+        this.achFieldDataTypeRule = achFieldDataTypeRule;
+        this.achFieldRuleTests = achFieldRuleTests;
     }
 
-    public static ACHFieldRule createNewInstance(int recordNumber, int fieldNumber, Integer objectsCharacterLengthIs, Integer objectTakesUpPositionInRecord) {
-        return new ACHFieldRule(recordNumber, fieldNumber,objectsCharacterLengthIs , objectTakesUpPositionInRecord);
+    public static ACHFieldRule createNewInstance(Integer achPageTypeNumber,
+                                                 Integer achRecordTypeNumber,
+                                                 Integer fieldNumber,
+                                                 Integer objectsCharacterLengthIs,
+                                                 Integer objectTakesUpPositionInRecord,
+                                                 ACHDataTypeRule achFieldDataTypeRule,
+                                                 Map<String, Consumer<ACHField>> achFieldRuleTests) {
+        return new ACHFieldRule(achPageTypeNumber,
+                achRecordTypeNumber,
+                fieldNumber,
+                objectsCharacterLengthIs,
+                objectTakesUpPositionInRecord,
+                achFieldDataTypeRule,
+                achFieldRuleTests);
     }
 
-    public int getAchRecordNumber() {
-        return achRecordNumber;
+    public Integer getAchPageTypeNumber() {
+        return achPageTypeNumber;
     }
 
-    public int getAchFieldNumber() {
+    public Integer getAchRecordTypeNumber() {
+        return achRecordTypeNumber;
+    }
+
+    public Integer getAchFieldNumber() {
         return achFieldNumber;
     }
 
@@ -54,11 +77,19 @@ public final class ACHFieldRule {
         return achFieldRuleDescription;
     }
 
-    public Integer getObjectsCharacterLengthIs() {
-        return objectsCharacterLengthIs;
+    public Integer getExpectedCharacterLength() {
+        return expectedCharacterLength;
     }
 
-    public Integer getObjectTakesUpPositionInRecord() {
-        return objectTakesUpPositionInRecord;
+    public Integer getExpectedPositionInRecord() {
+        return expectedPositionInRecord;
+    }
+
+    public ACHDataTypeRule getAchFieldDataTypeRule() {
+        return achFieldDataTypeRule;
+    }
+
+    public Map<String, Consumer<ACHField>> getAchFieldRuleTests() {
+        return achFieldRuleTests;
     }
 }

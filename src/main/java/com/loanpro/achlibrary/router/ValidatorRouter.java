@@ -12,6 +12,7 @@ import java.io.*;
 public class ValidatorRouter {
 
     //todo: change to post request that accepts a string of ACH data
+    @CrossOrigin
     @RequestMapping(value = "/ach-data-validate", method = RequestMethod.POST, consumes = {MediaType.TEXT_PLAIN_VALUE})
     public Object achDataIn(@RequestBody String data) {
         if (!data.isEmpty()) {
@@ -21,7 +22,7 @@ public class ValidatorRouter {
         }
         return "page is empty";
     }
-
+    @CrossOrigin
     @RequestMapping(path = "/ach-file-validate", method = RequestMethod.POST, consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
     public Object achPageIn(@RequestPart MultipartFile page) throws Exception {
         if (!page.isEmpty()) {

@@ -1,13 +1,10 @@
-package com.loanpro.achlibrary.model;
+package com.loanpro.achlibrary.rule;
 
-import com.loanpro.achlibrary.dictionary.ACHValidationTestSuite;
+import com.loanpro.achlibrary.model.ACHRecord;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.Callable;
 import java.util.function.Consumer;
-
-import static com.loanpro.achlibrary.dictionary.ACHValidationTestSuite.isExpectedRecordLength;
 
 public class ACHRecordRule {
 

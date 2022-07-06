@@ -1,6 +1,7 @@
 package com.loanpro.achlibrary.model;
 
 import com.loanpro.achlibrary.dictionary.ACHRuleDictionary;
+import com.loanpro.achlibrary.rule.ACHPageRule;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -8,6 +9,8 @@ import java.io.IOException;
 import java.io.Reader;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
+import java.util.function.Consumer;
 
 public class ACHPage {
 	private int achPageNumber;
@@ -15,13 +18,13 @@ public class ACHPage {
 	private String achRawPage;
 	private ArrayList<ACHRecord> achRecords = new ArrayList<ACHRecord>();
 	private ACHPageRule achPageRule;
-	private HashMap<String, ACHValidationTest> achValidationTests;
+	private HashMap<String, ACHValidationTest> achValidationTests = new HashMap<String, ACHValidationTest>();
 	Logger logger = LoggerFactory.getLogger(ACHRecord.class);
 
 	public ACHPage(int achPageNumber, Character achPageTypeNumber, Reader reader) {
 		this.achPageNumber = achPageNumber;
 		this.achPageTypeNumber = Character.getNumericValue(achPageTypeNumber);
-		this.achPageRule = ACHRuleDictionary.getAchPageRule(achPageTypeNumber);
+		this.achPageRule = ACHRuleDictionary.achRules.get(Character.getNumericValue(achPageTypeNumber));
 		int r;
 		int achRecordNumber = 1;
 		int charCountInRecord = 1;
@@ -36,7 +39,10 @@ public class ACHPage {
 
 				if (charCountInRecord == 1) {
 					achRecordTypeNumber = ch;
-				} else if (ch == '\n') {
+
+				} else if (ch == '\r'){
+					continue;
+				}else if (ch == '\n' || reader.read() == -1 ) {
 //					TODO: Check character type and convert to correct type.
 					Integer pgTypNbr = Character.getNumericValue(achPageTypeNumber);
 					Integer rcdTypNbr = Character.getNumericValue(achRecordTypeNumber);
@@ -51,8 +57,8 @@ public class ACHPage {
 
 					//Map all the fields now that the record has all of its characters
 					//These can be called independently if an ACHRecord has already been instantiated with its achRawRecord property.
-					achRecord.runACHRecordRuleACHValidationTests();
 					achRecord.setAchFieldsFromRawRecord();
+					achRecord.runACHRecordRuleACHValidationTests();
 
 					this.appendToAchRecords(achRecord);
 
@@ -70,6 +76,8 @@ public class ACHPage {
 			}
 			reader.close();
 			this.achRawPage = achRawPage;
+			this.runACHPageRuleACHValidationTests();
+
 		} catch (IOException e) {
 			logger.error("Error while trying to read a ACH buffer: " + e);
 		}
@@ -137,6 +145,14 @@ public class ACHPage {
 
 	public void addToAchValidationTests(String achValidationTestName, ACHValidationTest achValidationTest) {
 		this.achValidationTests.put(achValidationTestName, achValidationTest);
+	}
+
+	public void runACHPageRuleACHValidationTests() {
+		for (Map.Entry<String, Consumer<ACHPage>> test : this.getAchPageRule().getAchPageRuleTests().entrySet()) {
+//            Java Consumer is passed by reference since it only allows void return.
+			Consumer<ACHPage> achValidationTest = test.getValue();
+			achValidationTest.accept(this);
+		}
 	}
 
 }

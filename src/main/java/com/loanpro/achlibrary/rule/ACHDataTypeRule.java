@@ -1,4 +1,4 @@
-package com.loanpro.achlibrary.model;
+package com.loanpro.achlibrary.rule;
 
 
 import com.loanpro.achlibrary.dictionary.DataType;
@@ -39,10 +39,16 @@ public class ACHDataTypeRule {
 				regex = "^0*[0-9]+$";
 				break;
 			case ALPHANUMERIC:
+				justified = Justifications.NONE;
+				paddingType = Paddings.NONE;
+				letterCase = LetterCases.INSENSITIVE;
+				regex = "^[0-9a-zA-Z]+ *$";
+				break;
+			case ASCII:
 				justified = Justifications.LEFT;
 				paddingType = Paddings.SPACES;
 				letterCase = LetterCases.INSENSITIVE;
-				regex = "^[0-9a-zA-Z]+ *$";
+				regex = "^[\\x00-\\xFF]+$";
 				break;
 			case CODES:
 				justified = Justifications.LEFT;
@@ -60,7 +66,7 @@ public class ACHDataTypeRule {
 				justified = Justifications.NONE;
 				paddingType = Paddings.NONE;
 				letterCase = LetterCases.NA;
-				regex = "^(?:(?:0){1}[0-9]|[1-1][0-2])(?:(?:0){1}[0-9]|[1-4][0-9]|[5-5][0-9]$)";
+				regex = "^(?:(?:0){1}[0-9]|[1-1][0-9]|[2-2][0-4])(?:(?:0){1}[0-9]|[1-4][0-9]|[5-5][0-9])$";
 				break;
 			case SPECIFICVALUES:
 				justified = Justifications.NONE;

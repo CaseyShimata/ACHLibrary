@@ -1,4 +1,6 @@
-package com.loanpro.achlibrary.model;
+package com.loanpro.achlibrary.rule;
+
+import com.loanpro.achlibrary.model.ACHField;
 
 import java.util.Map;
 import java.util.function.Consumer;
@@ -6,7 +8,7 @@ import java.util.function.Consumer;
 public final class ACHFieldRule {
     private final Integer achPageTypeNumber;
     private final Integer achRecordTypeNumber;
-    private final Integer achFieldNumber;
+    private final Integer achFieldRuleNumber;
     private String achFieldName;
     private String achFieldRuleDescription;
     private final Integer expectedCharacterLength;
@@ -27,14 +29,14 @@ public final class ACHFieldRule {
 
     private ACHFieldRule(Integer achPageTypeNumber,
                          Integer achRecordTypeNumber,
-                         Integer achFieldNumber,
+                         Integer achFieldRuleNumber,
                          Integer expectedCharacterLength,
                          Integer expectedPositionInRecord,
                          ACHDataTypeRule achFieldDataTypeRule,
                          Map<String, Consumer<ACHField>> achFieldRuleTests) {
         this.achPageTypeNumber = achPageTypeNumber;
         this.achRecordTypeNumber = achRecordTypeNumber;
-        this.achFieldNumber = achFieldNumber;
+        this.achFieldRuleNumber = achFieldRuleNumber;
         this.expectedCharacterLength = expectedCharacterLength;
         this.expectedPositionInRecord = expectedPositionInRecord;
         this.achFieldDataTypeRule = achFieldDataTypeRule;
@@ -43,14 +45,14 @@ public final class ACHFieldRule {
 
     public static ACHFieldRule createNewInstance(Integer achPageTypeNumber,
                                                  Integer achRecordTypeNumber,
-                                                 Integer fieldNumber,
+                                                 Integer achFieldRuleNumber,
                                                  Integer objectsCharacterLengthIs,
                                                  Integer objectTakesUpPositionInRecord,
                                                  ACHDataTypeRule achFieldDataTypeRule,
                                                  Map<String, Consumer<ACHField>> achFieldRuleTests) {
         return new ACHFieldRule(achPageTypeNumber,
                 achRecordTypeNumber,
-                fieldNumber,
+                achFieldRuleNumber,
                 objectsCharacterLengthIs,
                 objectTakesUpPositionInRecord,
                 achFieldDataTypeRule,
@@ -65,8 +67,8 @@ public final class ACHFieldRule {
         return achRecordTypeNumber;
     }
 
-    public Integer getAchFieldNumber() {
-        return achFieldNumber;
+    public Integer getAchFieldRuleNumber() {
+        return achFieldRuleNumber;
     }
 
     public String getAchFieldName() {

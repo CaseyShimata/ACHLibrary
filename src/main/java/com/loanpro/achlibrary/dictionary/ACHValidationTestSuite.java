@@ -1,15 +1,20 @@
 package com.loanpro.achlibrary.dictionary;
 
+import com.loanpro.achlibrary.model.ACHField;
 import com.loanpro.achlibrary.model.ACHPage;
 import com.loanpro.achlibrary.model.ACHRecord;
 import com.loanpro.achlibrary.model.ACHValidationTest;
+import com.loanpro.achlibrary.rule.ACHDataTypeRule;
+
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 public class ACHValidationTestSuite {
 
 	//Check if the pages record count is modulo of the expectedRecordCount. it returns a new ACHValidationTest with the results.
-	public static void isExpectedRecordModulo(ACHPage achPage){
-		String testName = "isExpectedRecordModulo";
-		String message = "the record count is " + achPage.getAchRecords().size() +  " the expected count should be modulo " + achPage.getAchPageRule().getExpectedRecordModulo();
+	public static void isExpectedPageModulo(ACHPage achPage){
+		String testName = "isExpectedPageModulo";
+		String message = "Page" + achPage.getAchPageNumber() + " record count is " + achPage.getAchRecords().size() +  " the expected count should be modulo " + achPage.getAchPageRule().getExpectedRecordModulo();
 		boolean isPass = achPage.getAchRecords().size() % achPage.getAchPageRule().getExpectedRecordModulo()  == 0 ? true : false;
 
 		ACHValidationTest achValidationTest = new ACHValidationTest(achPage.getAchPageNumber(), achPage.getAchPageTypeNumber(), testName, message, isPass);
@@ -24,6 +29,25 @@ public class ACHValidationTestSuite {
 
 		ACHValidationTest achValidationTest = new ACHValidationTest(achRecord.getAchPageNumber(), achRecord.getAchPageTypeNumber(), achRecord.getAchRecordNumber(), achRecord.getAchRecordTypeNumber(), testName, message, isPass);
 		achRecord.addToAchValidationTests(testName, achValidationTest);
+	}
+
+	public static void isExpectedDataType(ACHField achField){
+		ACHDataTypeRule achDataTypeRule = achField.getAchFieldRule().getAchFieldDataTypeRule();
+		String achArrayFieldToString = achField.getCurrentValue().stream()
+				.map(e->e.toString())
+				.collect(Collectors.joining());
+
+		String testName = "isExpectedDataType";
+		String message = "The expected data type is: " + achDataTypeRule.getDataType() +
+				" letter case: " + achDataTypeRule.getLetterCase() +
+				" justification: " + achDataTypeRule.getJustified() +
+				" padding: " + achDataTypeRule.getPaddingType() +
+				". The data you submitted was: " + achArrayFieldToString;
+
+		boolean isPass = Pattern.compile(achDataTypeRule.getRegex()).matcher(achArrayFieldToString).matches();
+
+		ACHValidationTest achValidationTest = new ACHValidationTest(achField.getAchPageNumber(), achField.getAchPageTypeNumber(), achField.getAchRecordNumber(), achField.getAchRecordTypeNumber(), testName, message, isPass);
+		achField.addToAchValidationTests(testName, achValidationTest);
 	}
 
 	//page validations:

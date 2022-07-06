@@ -1,4 +1,6 @@
-package com.loanpro.achlibrary.model;
+package com.loanpro.achlibrary.rule;
+
+import com.loanpro.achlibrary.model.ACHPage;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -25,7 +27,15 @@ public class ACHPageRule {
         return expectedRecordModulo;
     }
 
+    public HashMap<Integer, ACHRecordRule> getAchRecordRules() {
+        return achRecordRules;
+    }
+
     public ACHRecordRule getOneAchRecordRules(int achRecordTypeNumber) {
         return this.achRecordRules.get(achRecordTypeNumber);
+    }
+
+    public Map<String, Consumer<ACHPage>> getAchPageRuleTests() {
+        return achPageRuleTests;
     }
 }

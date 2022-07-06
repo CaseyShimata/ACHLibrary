@@ -1,5 +1,7 @@
 package com.loanpro.achlibrary.model;
 
+import com.loanpro.achlibrary.rule.ACHFieldRule;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -14,7 +16,7 @@ public class ACHField {
     private ArrayList<Character> currentValue;
     private Integer currentPosition;
     private ACHFieldRule achFieldRule;
-    private HashMap<String, ACHValidationTest> achValidationTests;
+    private HashMap<String, ACHValidationTest> achValidationTests = new HashMap<String, ACHValidationTest>();
 
     public ACHField(int achPageNumber, int achPageTypeNumber, int achRecordNumber, int achRecordTypeNumber, int achFieldRuleNumber, ArrayList<Character> currentValue, Integer currentPosition, ACHFieldRule achFieldRule) {
         this.achPageNumber = achPageNumber;
@@ -33,6 +35,14 @@ public class ACHField {
 
     public void setAchPageNumber(int achPageNumber) {
         this.achPageNumber = achPageNumber;
+    }
+
+    public int getAchPageTypeNumber() {
+        return achPageTypeNumber;
+    }
+
+    public void setAchPageTypeNumber(int achPageTypeNumber) {
+        this.achPageTypeNumber = achPageTypeNumber;
     }
 
     public int getAchRecordNumber() {
@@ -95,7 +105,7 @@ public class ACHField {
         this.achValidationTests.put(achValidationTestName, ACHValidationTest);
     }
 
-    public void runAchFieldValidationTests(){
+    public void runAchFieldRuleAchValidationTests(){
         // Run the ACHField's ACHFieldRule's tests adding the resulting ACHValidationTests to the current ACHField
         for (Map.Entry<String, Consumer<ACHField>> test : this.achFieldRule.getAchFieldRuleTests().entrySet()) {
             Consumer<ACHField> achValidationTest = test.getValue();

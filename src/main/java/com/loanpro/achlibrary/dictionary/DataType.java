@@ -4,6 +4,7 @@ public enum DataType {
 	ALPHA,
 	NUMERIC,
 	ALPHANUMERIC,
+	ASCII,
 	CODES,
 	YYMMDD,
 	HHMM,

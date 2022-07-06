@@ -1,6 +1,8 @@
 package com.loanpro.achlibrary.model;
 
 import com.loanpro.achlibrary.dictionary.ACHRuleDictionary;
+import com.loanpro.achlibrary.rule.ACHFieldRule;
+import com.loanpro.achlibrary.rule.ACHRecordRule;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -113,21 +115,23 @@ public class ACHRecord {
 				ArrayList<Character> newACHFieldCurrentValue = new ArrayList<Character>(this.getAchRawRecord()
 						.subList(achCharacterPosition1, achCharacterPosition2));
 
-				//TODO: Add the ACHFieldRule to this Field using the dictionary
+				//Instantiate an ACFField passing the ACHFieldRule to this Field using the dictionary
 				ACHField achField = new ACHField(this.achPageNumber,
 						this.achPageTypeNumber,
 						this.achRecordNumber,
 						this.achRecordTypeNumber,
-						index.getValue().getAchFieldNumber(),
+						index.getValue().getAchFieldRuleNumber(),
 						newACHFieldCurrentValue,
 						achFieldRule.getExpectedPositionInRecord(),
 						ACHRuleDictionary.getAchFieldRule(
 								this.achPageTypeNumber,
 								this.achRecordTypeNumber,
-								index.getValue().getAchFieldNumber()));
+								index.getValue().getAchFieldRuleNumber()
+						)
+				);
 
-				achField.runAchFieldValidationTests();
-				this.achFields.add(index.getValue().getAchFieldNumber() - 1, achField);
+				achField.runAchFieldRuleAchValidationTests();
+				this.achFields.add(index.getValue().getAchFieldRuleNumber() - 1, achField);
 			} catch (IndexOutOfBoundsException e) {
 				logger.warn("This record is too short to map all the fields: " + e);
 				continue;

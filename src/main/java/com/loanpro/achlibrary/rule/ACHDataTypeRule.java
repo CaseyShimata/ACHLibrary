@@ -19,7 +19,7 @@ public class ACHDataTypeRule {
 
 
 	//if case PADDING use the first value in specificValues to determine the spacing
-	private ACHDataTypeRule(DataType dataType, String[] specificValuesOrPaddingENUMPadding) {
+	private ACHDataTypeRule(DataType dataType, String[] enumPaddingSpecificOtherValues) {
 		Justifications justified;
 		Paddings paddingType;
 		LetterCases letterCase;
@@ -73,7 +73,7 @@ public class ACHDataTypeRule {
 				paddingType = Paddings.NONE;
 				letterCase = LetterCases.NA;
 				regex = "^(?:";
-				for (String value : specificValuesOrPaddingENUMPadding){
+				for (String value : enumPaddingSpecificOtherValues){
 					regex += value + "|";
 				}
 				regex += ")$";
@@ -82,9 +82,17 @@ public class ACHDataTypeRule {
 				justified = Justifications.NONE;
 				paddingType = Paddings.SPACES;
 				letterCase = LetterCases.NA;
-				String paddingCharacter = 0 < specificValuesOrPaddingENUMPadding.length ? specificValuesOrPaddingENUMPadding[0] : " ";
+				String paddingCharacter = enumPaddingSpecificOtherValues.length > 0 ? enumPaddingSpecificOtherValues[0] : " ";
 				regex = "^[" + paddingCharacter + "]*$";
 				break;
+			case OTHER:
+				justified = Justifications.NONE;
+				paddingType = Paddings.NONE;
+				letterCase = LetterCases.NA;
+				String customRegex = enumPaddingSpecificOtherValues.length > 0 ? enumPaddingSpecificOtherValues[0] : "^[\\x00-\\xFF]+$";
+				regex = customRegex;
+				break;
+
 			default:
 				throw new IllegalStateException("Unexpected value while setting ACHDataTypeRule got: " + dataType);
 		}

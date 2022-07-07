@@ -9,5 +9,6 @@ public enum DataType {
 	YYMMDD,
 	HHMM,
 	SPECIFICVALUES,
-	PADDING
+	PADDING,
+	OTHER
 }

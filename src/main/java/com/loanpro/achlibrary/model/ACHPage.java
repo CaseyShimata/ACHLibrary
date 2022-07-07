@@ -28,6 +28,7 @@ public class ACHPage {
 		int r;
 		int achRecordNumber = 1;
 		int charCountInRecord = 1;
+		int lineBreakCharTracker = 0;
 		String achRawPage = "";
 		ArrayList<Character> achRawRecord = new ArrayList<Character>();
 		Character achRecordTypeNumber = '1';
@@ -42,26 +43,12 @@ public class ACHPage {
 
 				} else if (ch == '\r'){
 					continue;
-				}else if (ch == '\n' || reader.read() == -1 ) {
-//					TODO: Check character type and convert to correct type.
-					Integer pgTypNbr = Character.getNumericValue(achPageTypeNumber);
-					Integer rcdTypNbr = Character.getNumericValue(achRecordTypeNumber);
-
-					ACHRecord achRecord = new ACHRecord(
-							achPageNumber,
-							pgTypNbr,
+				}else if (ch == '\n' ) {
+					this.createACHRecords(achPageNumber,
+							achPageTypeNumber,
 							achRecordNumber,
-							rcdTypNbr,
-							achRawRecord,
-							ACHRuleDictionary.getAchRecordRule(pgTypNbr, rcdTypNbr));
-
-					//Map all the fields now that the record has all of its characters
-					//These can be called independently if an ACHRecord has already been instantiated with its achRawRecord property.
-					achRecord.setAchFieldsFromRawRecord();
-					achRecord.runACHRecordRuleACHValidationTests();
-
-					this.appendToAchRecords(achRecord);
-
+							achRecordTypeNumber,
+							achRawRecord);
 //					TODO: Check if new pointer fully garbage collects the orphaned object.
 //					Point to a new empty array list instead of clearing and resizing the current arraylist
 					achRawRecord = new ArrayList<Character>();
@@ -69,11 +56,17 @@ public class ACHPage {
 					achRecordNumber += 1;
 //					Do not append more the record is now complete. Continue to make the next record.
 					continue;
+
 				}
 				achRawRecord.add(ch);
 				charCountInRecord += 1;
 
 			}
+			this.createACHRecords(achPageNumber,
+					achPageTypeNumber,
+					achRecordNumber,
+					achRecordTypeNumber,
+					achRawRecord);
 			reader.close();
 			this.achRawPage = achRawPage;
 			this.runACHPageRuleACHValidationTests();
@@ -81,6 +74,27 @@ public class ACHPage {
 		} catch (IOException e) {
 			logger.error("Error while trying to read a ACH buffer: " + e);
 		}
+	}
+
+	private void createACHRecords(int achPageNumber, Character achPageTypeNumber, int achRecordNumber, Character achRecordTypeNumber, ArrayList<Character> achRawRecord){
+//		TODO: Check character type and convert to correct type.
+		Integer pgTypNbr = Character.getNumericValue(achPageTypeNumber);
+		Integer rcdTypNbr = Character.getNumericValue(achRecordTypeNumber);
+
+		ACHRecord achRecord = new ACHRecord(
+				achPageNumber,
+				pgTypNbr,
+				achRecordNumber,
+				rcdTypNbr,
+				achRawRecord,
+				ACHRuleDictionary.getAchRecordRule(pgTypNbr, rcdTypNbr));
+
+		//Map all the fields now that the record has all of its characters
+		//These can be called independently if an ACHRecord has already been instantiated with its achRawRecord property.
+		achRecord.setAchFieldsFromRawRecord();
+		achRecord.runACHRecordRuleACHValidationTests();
+
+		this.appendToAchRecords(achRecord);
 	}
 
 	public int getAchPageNumber() {

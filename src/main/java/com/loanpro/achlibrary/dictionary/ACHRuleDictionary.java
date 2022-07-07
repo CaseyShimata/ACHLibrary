@@ -157,7 +157,7 @@ public class ACHRuleDictionary {
 		return ACHRecordRule.createNewInstance(achPageTypeNumber, achRecordTypeNumber, achRecordType, expectedNumberOfFields, permittedPreviousRecordTypeNumber, permittedNextRecordTypeNumber, isPossiblePaddingLine, required, expectedNumberOfCharacters, achFieldRules, achRecordRuleTests);
 	}
 
-	private static final ACHFieldRule mapFieldRule(Integer achPageTypeNumber, Integer achRecordTypeNumber, Integer achFieldNumber) {
+	private static final ACHFieldRule mapFieldRule(Integer achPageTypeNumber, Integer achRecordTypeNumber, Integer achFieldRuleNumber) {
 		Integer achFieldLength;
 		Integer achFieldPosition;
 		ACHDataTypeRule achDataTypeRule;
@@ -167,7 +167,7 @@ public class ACHRuleDictionary {
 		achFieldRuleTests.put("isExpectedDataType", (achField) -> isExpectedDataType(achField));
 
 		//TODO: Add the correct ACHDataTypeRule to each ACHFieldRule.
-		switch (achPageTypeNumber.toString().concat(achRecordTypeNumber.toString().concat(achFieldNumber.toString()))) {
+		switch (achPageTypeNumber.toString().concat(achRecordTypeNumber.toString().concat(achFieldRuleNumber.toString()))) {
 			case "111":
 				achFieldLength = 1;
 				achFieldPosition = 1;
@@ -181,7 +181,7 @@ public class ACHRuleDictionary {
 			case "113":
 				achFieldLength = 10;
 				achFieldPosition = 4;
-				achDataTypeRule = ACHDataTypeRule.createNewInstance(DataType.NUMERIC, new String[]{});
+				achDataTypeRule = ACHDataTypeRule.createNewInstance(DataType.OTHER, new String[]{"^ \\d+$"});
 				break;
 			case "114":
 				achFieldLength = 10;
@@ -281,7 +281,7 @@ public class ACHRuleDictionary {
 			case "1510":
 				achFieldLength = 3;
 				achFieldPosition = 76;
-				achDataTypeRule = ACHDataTypeRule.createNewInstance(DataType.SPECIFICVALUES, new String[]{"   "});
+				achDataTypeRule = ACHDataTypeRule.createNewInstance(DataType.PADDING, new String[]{" "});
 				break;
 			case "1511":
 				achFieldLength = 1;
@@ -446,12 +446,12 @@ public class ACHRuleDictionary {
 			case "188":
 				achFieldLength = 19;
 				achFieldPosition = 55;
-				achDataTypeRule = ACHDataTypeRule.createNewInstance(DataType.SPECIFICVALUES, new String[]{"                   "});
+				achDataTypeRule = ACHDataTypeRule.createNewInstance(DataType.PADDING, new String[]{" "});
 				break;
 			case "189":
 				achFieldLength = 6;
 				achFieldPosition = 74;
-				achDataTypeRule = ACHDataTypeRule.createNewInstance(DataType.SPECIFICVALUES, new String[]{"      "});
+				achDataTypeRule = ACHDataTypeRule.createNewInstance(DataType.PADDING, new String[]{" "});
 				break;
 			case "1810":
 				achFieldLength = 8;
@@ -501,13 +501,13 @@ public class ACHRuleDictionary {
 			case "198":
 				achFieldLength = 39;
 				achFieldPosition = 56;
-				achDataTypeRule = ACHDataTypeRule.createNewInstance(DataType.SPECIFICVALUES, new String[]{"                                       "});
+				achDataTypeRule = ACHDataTypeRule.createNewInstance(DataType.PADDING, new String[]{" "});
 				break;
 			default:
-				throw new IllegalStateException("Unexpected value while creating an ACHFieldRule got: " + achPageTypeNumber.toString().concat(achRecordTypeNumber.toString().concat(achFieldNumber.toString())));
+				throw new IllegalStateException("Unexpected value while creating an ACHFieldRule got: " + achPageTypeNumber.toString().concat(achRecordTypeNumber.toString().concat(achFieldRuleNumber.toString())));
 		}
 
-		return ACHFieldRule.createNewInstance(achPageTypeNumber, achRecordTypeNumber, achFieldNumber, achFieldLength, achFieldPosition, achDataTypeRule, achFieldRuleTests);
+		return ACHFieldRule.createNewInstance(achPageTypeNumber, achRecordTypeNumber, achFieldRuleNumber, achFieldLength, achFieldPosition, achDataTypeRule, achFieldRuleTests);
 	}
 
 }

@@ -46,7 +46,7 @@ public class ACHValidationTestSuite {
 
 		boolean isPass = Pattern.compile(achDataTypeRule.getRegex()).matcher(achArrayFieldToString).matches();
 
-		ACHValidationTest achValidationTest = new ACHValidationTest(achField.getAchPageNumber(), achField.getAchPageTypeNumber(), achField.getAchRecordNumber(), achField.getAchRecordTypeNumber(), testName, message, isPass);
+		ACHValidationTest achValidationTest = new ACHValidationTest(achField.getAchPageNumber(), achField.getAchPageTypeNumber(), achField.getAchRecordNumber(), achField.getAchRecordTypeNumber(), achField.getAchFieldRuleNumber(), testName, message, isPass);
 		achField.addToAchValidationTests(testName, achValidationTest);
 	}
 

@@ -14,21 +14,19 @@ public class ACHRecordRule {
 	private final int expectedNumberOfFields;
 	private final int permittedPreviousRecordTypeNumber[];
 	private final int permittedNextRecordTypeNumber[];
-	private final boolean isPossiblePaddingLine;
 	private final boolean required;
 	private final int expectedNumberOfCharacters;
 	private final HashMap<Integer, ACHFieldRule> achFieldRules;
 	//Stores the tests for this rule. It might source from a test suite so that different rules can reuse that test
 	private final Map<String, Consumer<ACHRecord>> achRecordRuleTests;
 
-	private ACHRecordRule(int achPageTypeNumber, int achRecordTypeNumber, String achRecordType, int expectedNumberOfFields, int[] permittedPreviousRecordTypeNumber, int[] permittedNextRecordTypeNumber, boolean isPossiblePaddingLine, boolean required, int expectedNumberOfCharacters, HashMap<Integer, ACHFieldRule> achFieldRules, Map<String, Consumer<ACHRecord>> achRecordRuleTests) {
+	private ACHRecordRule(int achPageTypeNumber, int achRecordTypeNumber, String achRecordType, int expectedNumberOfFields, int[] permittedPreviousRecordTypeNumber, int[] permittedNextRecordTypeNumber, boolean required, int expectedNumberOfCharacters, HashMap<Integer, ACHFieldRule> achFieldRules, Map<String, Consumer<ACHRecord>> achRecordRuleTests) {
 		this.achPageTypeNumber = achPageTypeNumber;
 		this.achRecordTypeNumber = achRecordTypeNumber;
 		this.achRecordType = achRecordType;
 		this.expectedNumberOfFields = expectedNumberOfFields;
 		this.permittedPreviousRecordTypeNumber = permittedPreviousRecordTypeNumber;
 		this.permittedNextRecordTypeNumber = permittedNextRecordTypeNumber;
-		this.isPossiblePaddingLine = isPossiblePaddingLine;
 		this.required = required;
 		this.expectedNumberOfCharacters = expectedNumberOfCharacters;
 		this.achFieldRules = achFieldRules;
@@ -41,7 +39,6 @@ public class ACHRecordRule {
 	                                              int expectedNumberOfFields,
 	                                              int[] permittedPreviousRecordTypeNumber,
 	                                              int[] permittedNextRecordTypeNumber,
-	                                              boolean isPossiblePaddingLine,
 	                                              boolean required,
 	                                              int expectedNumberOfCharacters,
 	                                              HashMap<Integer, ACHFieldRule> achFieldRules, HashMap<String, Consumer<ACHRecord>> achRecordRuleTests) {
@@ -52,7 +49,6 @@ public class ACHRecordRule {
 				expectedNumberOfFields,
 				permittedPreviousRecordTypeNumber,
 				permittedNextRecordTypeNumber,
-				isPossiblePaddingLine,
 				required,
 				expectedNumberOfCharacters,
 				achFieldRules, achRecordRuleTests);
@@ -80,10 +76,6 @@ public class ACHRecordRule {
 
 	public int[] getPermittedNextRecordTypeNumber() {
 		return permittedNextRecordTypeNumber;
-	}
-
-	public boolean isPossiblePaddingLine() {
-		return isPossiblePaddingLine;
 	}
 
 	public boolean isRequired() {

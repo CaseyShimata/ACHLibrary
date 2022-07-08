@@ -30,7 +30,7 @@ public class ACHDataTypeRule {
 				justified = Justifications.LEFT;
 				paddingType = Paddings.SPACES;
 				letterCase = LetterCases.INSENSITIVE;
-				regex = "^[A-Za-z]+ *$";
+				regex = "^[A-Za-z ]+ *$";
 				break;
 			case NUMERIC:
 				justified = Justifications.RIGHT;
@@ -42,7 +42,7 @@ public class ACHDataTypeRule {
 				justified = Justifications.NONE;
 				paddingType = Paddings.NONE;
 				letterCase = LetterCases.INSENSITIVE;
-				regex = "^[0-9a-zA-Z]+ *$";
+				regex = "^[0-9a-zA-Z ]+ *$";
 				break;
 			case ASCII:
 				justified = Justifications.LEFT;

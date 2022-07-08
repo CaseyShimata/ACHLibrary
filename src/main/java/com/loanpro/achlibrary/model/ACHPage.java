@@ -41,9 +41,9 @@ public class ACHPage {
 				if (charCountInRecord == 1) {
 					achRecordTypeNumber = ch;
 
-				} else if (ch == '\r'){
+				} else if (ch == '\r') {
 					continue;
-				}else if (ch == '\n' ) {
+				} else if (ch == '\n') {
 					this.createACHRecords(achPageNumber,
 							achPageTypeNumber,
 							achRecordNumber,
@@ -76,10 +76,14 @@ public class ACHPage {
 		}
 	}
 
-	private void createACHRecords(int achPageNumber, Character achPageTypeNumber, int achRecordNumber, Character achRecordTypeNumber, ArrayList<Character> achRawRecord){
+	private void createACHRecords(int achPageNumber, Character achPageTypeNumber, int achRecordNumber, Character achRecordTypeNumber, ArrayList<Character> achRawRecord) {
 //		TODO: Check character type and convert to correct type.
 		Integer pgTypNbr = Character.getNumericValue(achPageTypeNumber);
 		Integer rcdTypNbr = Character.getNumericValue(achRecordTypeNumber);
+
+		if (!achRawRecord.isEmpty() && achRawRecord.get(1) == '9' && achRawRecord.get(achRawRecord.size() - 1) == '9') {
+			rcdTypNbr = 10;
+		}
 
 		ACHRecord achRecord = new ACHRecord(
 				achPageNumber,

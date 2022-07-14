@@ -77,22 +77,22 @@ public class ACHValidationTestSuite {
 					//TODO: Change the hashmap for a page/record/file to hold the tests into an array.. it doesn't
 					// make sense to be accessing the tests by name any time soon and hashmap may get overwritten tests
 					// if not careful in naming of the keys.
-					achPage.addToAchValidationTests(count + "record" + nextAchRecordTypeNumber +
+					achPage.addToAchValidationTests("test" + count + "record" + nextAchRecordTypeNumber +
 									"DoesNotProceedRecord" + achRecordTypeNumber,
 							new ACHValidationTest(achPage.getAchPageNumber(),
 									achPage.getAchPageTypeNumber(),
-									count + "record" + nextAchRecordTypeNumber +
+									"test" + count + "record" + nextAchRecordTypeNumber +
 											"DoesNotProceedRecord" + achRecordTypeNumber,
 									"Record of type " + achRecordTypeNumber +
 											" on line " + achRecordNumber +
 											" can not be proceeded by record of type " + nextAchRecordTypeNumber,
 									false));
 				} else {
-					achPage.addToAchValidationTests(count + "record" + nextAchRecordTypeNumber +
+					achPage.addToAchValidationTests("test" + count + "record" + nextAchRecordTypeNumber +
 									"DoesProceedRecord" + achRecordTypeNumber,
 							new ACHValidationTest(achPage.getAchPageNumber(),
 									achPage.getAchPageTypeNumber(),
-									count + "record" + nextAchRecordTypeNumber +
+									"test" + count + "record" + nextAchRecordTypeNumber +
 											"DoesProceedRecord" + achRecordTypeNumber,
 									"Record of type " + achRecordTypeNumber +
 											" on line " + achRecordNumber +
